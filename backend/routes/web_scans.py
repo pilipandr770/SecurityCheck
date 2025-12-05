@@ -218,8 +218,9 @@ def map_vulnerability_type(result):
         return 'xss'
     
     if 'x-xss-protection' in title:
-        current_app.logger.info('-> Mapped to XSS (XSS Protection missing)')
-        return 'xss'
+        current_app.logger.info('-> Mapped to XSS Protection header (treating as separate from CSP)')
+        # X-XSS-Protection это legacy заголовок, низкий приоритет - не показываем отдельно
+        return None  # Пусть AI обработает или пропустим
     
     # HSTS
     if 'hsts' in title or 'strict-transport-security' in title:

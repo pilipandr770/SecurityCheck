@@ -90,14 +90,9 @@ class WebScanner:
                             'evidence': f'Дата истечения: {expires}',
                             'raw_data': {'expires': expires.isoformat(), 'days': days_until_expire}
                         })
-                    else:
-                        results.append({
-                            'category': 'ssl',
-                            'title': 'SSL сертификат валиден',
-                            'description': f'Сертификат действителен ещё {days_until_expire} дней',
-                            'severity': 'info',
-                            'raw_data': {'expires': expires.isoformat(), 'days': days_until_expire}
-                        })
+                    # Не добавляем результат для валидного сертификата - это не уязвимость
+                    # else:
+                    #     pass  # Валидный сертификат - не показываем пользователю
                     
                     # Проверяем версию TLS
                     tls_version = ssock.version()
