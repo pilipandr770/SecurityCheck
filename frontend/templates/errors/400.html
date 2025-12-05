@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}400 - Ungültige Anfrage{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 text-center">
+            <div class="error-template">
+                <i class="fas fa-exclamation-triangle fa-5x text-warning mb-4"></i>
+                <h1 class="display-1">400</h1>
+                <h2>Ungültige Anfrage</h2>
+                <div class="error-details mb-4">
+                    <p class="lead">Извините, ваш запрос содержит ошибку.</p>
+                    <p class="text-muted">Возможно, истек срок действия CSRF токена или данные повреждены.</p>
+                </div>
+                <div class="error-actions">
+                    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home"></i> Zur Startseite
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Zurück
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

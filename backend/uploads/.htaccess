@@ -1,0 +1,27 @@
+# Запрет выполнения скриптов в папке uploads
+# Защита от загрузки и выполнения вредоносных файлов
+
+# Запретить выполнение PHP
+<FilesMatch "\.(php|php3|php4|php5|php7|phtml|pl|py|jsp|asp|aspx|cgi|sh|bash)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Запретить выполнение любых скриптов
+Options -ExecCGI
+RemoveHandler .php .php3 .php4 .php5 .php7 .phtml .pl .py .jsp .asp .aspx .cgi .sh .bash
+
+# Добавить типы как обычный текст
+AddType text/plain .php .php3 .php4 .php5 .php7 .phtml .pl .py .jsp .asp .aspx .cgi .sh .bash
+
+# Запретить доступ к файлам с двойным расширением
+<FilesMatch ".*\..*\..*$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Разрешить только определённые типы файлов
+<FilesMatch "\.(pdf|doc|docx|xls|xlsx|zip|txt|jpg|jpeg|png|gif)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>

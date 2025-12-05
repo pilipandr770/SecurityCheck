@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Benutzerverwaltung - Admin-Panel{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="fas fa-users"></i> Benutzerverwaltung</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.index') }}">Admin-Panel</a></li>
+                <li class="breadcrumb-item active">Benutzer</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Filter und Suche -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Suche</label>
+                <input type="text" 
+                       class="form-control" 
+                       name="search" 
+                       value="{{ search }}"
+                       placeholder="E-Mail, Vor- oder Nachname">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Tarif</label>
+                <select class="form-select" name="plan">
+                    <option value="">Alle Tarife</option>
+                    <option value="free" {% if plan == 'free' %}selected{% endif %}>Free</option>
+                    <option value="starter" {% if plan == 'starter' %}selected{% endif %}>Starter</option>
+                    <option value="pro" {% if plan == 'pro' %}selected{% endif %}>Pro</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Suchen
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-0">{{ users.total }}</h3>
+                <small class="text-muted">Benutzer gesamt</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-secondary">{{ users.items|selectattr('subscription_plan.value', 'equalto', 'free')|list|length }}</h3>
+                <small class="text-muted">Free</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-primary">{{ users.items|selectattr('subscription_plan.value', 'equalto', 'starter')|list|length }}</h3>
+                <small class="text-muted">Starter</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="mb-0 text-success">{{ users.items|selectattr('subscription_plan.value', 'equalto', 'pro')|list|length }}</h3>
+                <small class="text-muted">Pro</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Таблица пользователей -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-list"></i> 
+            Benutzerliste
+            <span class="badge bg-primary">{{ users.total }}</span>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Tarif</th>
+                        <th>Registrierung</th>
+                        <th>Aktivität</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users.items %}
+                    <tr data-user-id="{{ user.id }}">
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    {{ user.email }}
+                                    {% if user.is_admin %}
+                                        <span class="badge bg-danger ms-1">ADMIN</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.first_name %}
+                                {{ user.first_name }} {{ user.last_name or '' }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm plan-select" 
+                                    data-user-id="{{ user.id }}"
+                                    {% if user.is_admin %}disabled{% endif %}>
+                                <option value="free" {% if user.subscription_plan.value == 'free' %}selected{% endif %}>Free</option>
+                                <option value="starter" {% if user.subscription_plan.value == 'starter' %}selected{% endif %}>Starter</option>
+                                <option value="pro" {% if user.subscription_plan.value == 'pro' %}selected{% endif %}>Pro</option>
+                            </select>
+                        </td>
+                        <td>
+                            <small>{{ user.created_at.strftime('%d.%m.%Y') }}</small><br>
+                            <small class="text-muted">{{ user.created_at.strftime('%H:%M') }}</small>
+                        </td>
+                        <td>
+                            {% if user.last_login %}
+                                <small>{{ user.last_login.strftime('%d.%m.%Y') }}</small><br>
+                                <small class="text-muted">{{ user.last_login.strftime('%H:%M') }}</small>
+                            {% else %}
+                                <span class="text-muted">Nicht angemeldet</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input status-toggle" 
+                                       type="checkbox" 
+                                       data-user-id="{{ user.id }}"
+                                       {% if user.is_active %}checked{% endif %}
+                                       {% if user.is_admin %}disabled{% endif %}>
+                                <label class="form-check-label">
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">Aktiv</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Gesperrt</span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" 
+                                   class="btn btn-outline-primary" 
+                                   title="Ansehen">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if not user.is_admin and user.id != current_user.id %}
+                                <button class="btn btn-outline-danger delete-user" 
+                                        data-user-id="{{ user.id }}"
+                                        data-user-email="{{ user.email }}"
+                                        title="Löschen">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Пагинация -->
+    {% if users.pages > 1 %}
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination mb-0 justify-content-center">
+                {% if users.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ users.prev_num }}&search={{ search }}&plan={{ plan }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in users.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == users.page %}active{% endif %}">
+                            <a class="page-link" href="?page={{ page_num }}&search={{ search }}&plan={{ plan }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if users.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ users.next_num }}&search={{ search }}&plan={{ plan }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Изменение тарифа
+document.querySelectorAll('.plan-select').forEach(select => {
+    select.addEventListener('change', async function() {
+        const userId = this.dataset.userId;
+        const newPlan = this.value;
+        
+        try {
+            const response = await fetch(`/admin/users/${userId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subscription_plan: newPlan
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                SecurityCheck.showNotification(data.message, 'success');
+            } else {
+                SecurityCheck.showNotification(data.error, 'danger');
+                this.value = this.dataset.originalValue; // Вернуть старое значение
+            }
+        } catch (error) {
+            SecurityCheck.showNotification('Fehler beim Aktualisieren des Tarifs', 'danger');
+        }
+    });
+    
+    // Сохраняем оригинальное значение
+    select.dataset.originalValue = select.value;
+});
+
+// Переключение статуса активности
+document.querySelectorAll('.status-toggle').forEach(toggle => {
+    toggle.addEventListener('change', async function() {
+        const userId = this.dataset.userId;
+        const isActive = this.checked;
+        
+        try {
+            const response = await fetch(`/admin/users/${userId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    is_active: isActive
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                SecurityCheck.showNotification(data.message, 'success');
+                
+                // Обновляем бейдж
+                const label = this.nextElementSibling;
+                const badge = label.querySelector('.badge');
+                if (isActive) {
+                    badge.className = 'badge bg-success';
+                    badge.textContent = 'Aktiv';
+                } else {
+                    badge.className = 'badge bg-danger';
+                    badge.textContent = 'Gesperrt';
+                }
+            } else {
+                SecurityCheck.showNotification(data.error, 'danger');
+                this.checked = !isActive; // Вернуть старое значение
+            }
+        } catch (error) {
+            SecurityCheck.showNotification('Fehler beim Aktualisieren des Status', 'danger');
+            this.checked = !isActive;
+        }
+    });
+});
+
+// Удаление пользователя
+document.querySelectorAll('.delete-user').forEach(button => {
+    button.addEventListener('click', async function() {
+        const userId = this.dataset.userId;
+        const userEmail = this.dataset.userEmail;
+        
+        if (!confirm(`Benutzer löschen ${userEmail}?\n\nALLE seine Daten werden unwiderruflich gelöscht!`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/admin/users/${userId}/delete`, {
+                method: 'POST'
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                SecurityCheck.showNotification(data.message, 'success');
+                
+                // Удаляем строку из таблицы
+                const row = this.closest('tr');
+                row.remove();
+            } else {
+                SecurityCheck.showNotification(data.error, 'danger');
+            }
+        } catch (error) {
+            SecurityCheck.showNotification('Fehler beim Löschen des Benutzers', 'danger');
+        }
+    });
+});
+</script>
+{% endblock %}

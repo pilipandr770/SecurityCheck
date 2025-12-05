@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Scan-Verlauf - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-11 mx-auto">
+        <div class="card shadow-lg">
+            <div class="card-header bg-secondary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-history"></i> Scan-Verlauf
+                </h3>
+            </div>
+            <div class="card-body">
+                <!-- Фильтры -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Typ проверки</label>
+                        <select class="form-select" id="filterType">
+                            <option value="all">Все проверки</option>
+                            <option value="web_scan">Website-Scans</option>
+                            <option value="link_check">Link-Checks</option>
+                            <option value="domain_intel">Разведка доменов</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Период</label>
+                        <select class="form-select" id="filterPeriod">
+                            <option value="7">Последние 7 Tage</option>
+                            <option value="30">Последние 30 Tage</option>
+                            <option value="90">Последние 90 Tage</option>
+                            <option value="all">Всё время</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="filterStatus">
+                            <option value="all">Все статусы</option>
+                            <option value="completed">Abgeschlossen</option>
+                            <option value="in_progress">В процессе</option>
+                            <option value="failed">Fehler</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Статистика -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h3 id="totalScans">0</h3>
+                                <small>Всего проверок</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h3 id="todayScans">0</h3>
+                                <small>Сегодня</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h3 id="safeScans">0</h3>
+                                <small>Безопасных</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h3 id="threatsFound">0</h3>
+                                <small>Угроз найдено</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Загрузка -->
+                <div id="loading" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-3">Загрузка истории...</p>
+                </div>
+                
+                <!-- Таблица -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%"><i class="fas fa-hashtag"></i></th>
+                                <th style="width: 10%">Typ</th>
+                                <th style="width: 35%">Объект проверки</th>
+                                <th style="width: 15%">Результат</th>
+                                <th style="width: 15%">Datum</th>
+                                <th style="width: 10%">Status</th>
+                                <th style="width: 10%">Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                    История пуста
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Пагинация -->
+                <nav id="paginationNav" style="display: none;">
+                    <ul class="pagination justify-content-center" id="pagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно детальной информации -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalTitle">Детали проверки</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsModalBody">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPage = 1;
+let currentType = 'all';
+let currentPeriod = 7;
+let currentStatus = 'all';
+
+// Иконки для типов
+const typeIcons = {
+    'web_scan': '<i class="fas fa-globe text-primary"></i>',
+    'link_check': '<i class="fas fa-link text-success"></i>',
+    'domain_intel': '<i class="fas fa-search text-info"></i>'
+};
+
+const typeNames = {
+    'web_scan': 'Сканирование сайта',
+    'link_check': 'Проверка ссылки',
+    'domain_intel': 'Разведка домена'
+};
+
+// Фильтры
+document.getElementById('filterType').addEventListener('change', (e) => {
+    currentType = e.target.value;
+    currentPage = 1;
+    loadHistory();
+});
+
+document.getElementById('filterPeriod').addEventListener('change', (e) => {
+    currentPeriod = e.target.value;
+    currentPage = 1;
+    loadHistory();
+});
+
+document.getElementById('filterStatus').addEventListener('change', (e) => {
+    currentStatus = e.target.value;
+    currentPage = 1;
+    loadHistory();
+});
+
+// Загрузка истории
+async function loadHistory() {
+    document.getElementById('loading').style.display = 'block';
+    
+    try {
+        const params = {
+            page: currentPage,
+            type: currentType,
+            period: currentPeriod,
+            status: currentStatus
+        };
+        
+        const data = await SecurityCheckAPI.getHistory(params);
+        displayHistory(data);
+        updateStatistics(data.statistics);
+        
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler загрузки: ' + error.message, 'danger');
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+function displayHistory(data) {
+    const tbody = document.getElementById('historyTable');
+    
+    if (!data.items || data.items.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center text-muted py-5">
+                    <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                    Нет результатов
+                </td>
+            </tr>
+        `;
+        document.getElementById('paginationNav').style.display = 'none';
+        return;
+    }
+    
+    tbody.innerHTML = data.items.map((item, index) => {
+        const statusBadge = getStatusBadge(item.status);
+        const resultBadge = getResultBadge(item);
+        
+        return `
+            <tr>
+                <td>${(currentPage - 1) * 20 + index + 1}</td>
+                <td>${typeIcons[item.type]} ${typeNames[item.type]}</td>
+                <td>
+                    <strong>${SecurityCheck.escapeHtml(item.target)}</strong>
+                </td>
+                <td>${resultBadge}</td>
+                <td>
+                    <small>${SecurityCheck.formatDateTime(item.created_at)}</small>
+                </td>
+                <td>${statusBadge}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewDetails('${item.type}', '${item.id}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteItem('${item.type}', '${item.id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    // Пагинация
+    if (data.total_pages > 1) {
+        displayPagination(data.total_pages);
+        document.getElementById('paginationNav').style.display = 'block';
+    } else {
+        document.getElementById('paginationNav').style.display = 'none';
+    }
+}
+
+function getStatusBadge(status) {
+    const badges = {
+        'completed': '<span class="badge bg-success">Abgeschlossen</span>',
+        'in_progress': '<span class="badge bg-warning">В процессе</span>',
+        'failed': '<span class="badge bg-danger">Fehler</span>',
+        'pending': '<span class="badge bg-secondary">Ожидание</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">-</span>';
+}
+
+function getResultBadge(item) {
+    if (item.status !== 'completed') return '-';
+    
+    if (item.type === 'web_scan') {
+        const grade = SecurityCheckUtils.getSecurityGrade(item.security_score);
+        return `<span class="badge bg-${getGradeColor(grade)}">${item.security_score}/100 (${grade})</span>`;
+    } else if (item.type === 'link_check') {
+        const colors = {safe: 'success', warning: 'warning', danger: 'danger'};
+        return `<span class="badge bg-${colors[item.threat_level] || 'secondary'}">${item.threat_level}</span>`;
+    } else if (item.type === 'domain_intel') {
+        return `<span class="badge bg-info">${item.reputation_score}/100</span>`;
+    }
+    return '-';
+}
+
+function getGradeColor(grade) {
+    const colors = {A: 'success', B: 'info', C: 'warning', D: 'warning', E: 'danger', F: 'danger'};
+    return colors[grade] || 'secondary';
+}
+
+function updateStatistics(stats) {
+    document.getElementById('totalScans').textContent = stats.total || 0;
+    document.getElementById('todayScans').textContent = stats.today || 0;
+    document.getElementById('safeScans').textContent = stats.safe || 0;
+    document.getElementById('threatsFound').textContent = stats.threats || 0;
+}
+
+function displayPagination(totalPages) {
+    const pagination = document.getElementById('pagination');
+    let html = '';
+    
+    // Предыдущая
+    html += `
+        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+    `;
+    
+    // Страницы
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+            html += `
+                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                </li>
+            `;
+        } else if (i === currentPage - 3 || i === currentPage + 3) {
+            html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        }
+    }
+    
+    // Следующая
+    html += `
+        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    `;
+    
+    pagination.innerHTML = html;
+}
+
+function changePage(page) {
+    if (page < 1) return;
+    currentPage = page;
+    loadHistory();
+}
+
+async function viewDetails(type, id) {
+    const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+    const modalBody = document.getElementById('detailsModalBody');
+    const modalTitle = document.getElementById('detailsModalTitle');
+    
+    modalTitle.textContent = typeNames[type];
+    modalBody.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+    modal.show();
+    
+    try {
+        let data;
+        if (type === 'web_scan') {
+            data = await SecurityCheckAPI.getWebScan(id);
+            modalBody.innerHTML = renderWebScanDetails(data);
+        } else if (type === 'link_check') {
+            data = await SecurityCheckAPI.getLinkCheck(id);
+            modalBody.innerHTML = renderLinkCheckDetails(data);
+        } else if (type === 'domain_intel') {
+            data = await SecurityCheckAPI.getDomainIntel(id);
+            modalBody.innerHTML = renderDomainIntelDetails(data);
+        }
+    } catch (error) {
+        modalBody.innerHTML = `<div class="alert alert-danger">Fehler: ${error.message}</div>`;
+    }
+}
+
+function renderWebScanDetails(data) {
+    const grade = SecurityCheckUtils.getSecurityGrade(data.security_score);
+    return `
+        <h5>URL: ${SecurityCheck.escapeHtml(data.url)}</h5>
+        <p><strong>Bewertung:</strong> ${data.security_score}/100 (${grade})</p>
+        <p><strong>SSL:</strong> ${data.ssl_score}/100</p>
+        <p><strong>Заголовки:</strong> ${data.headers_score}/100</p>
+        <p><strong>HTML:</strong> ${data.html_score}/100</p>
+        <p><strong>Datum:</strong> ${SecurityCheck.formatDateTime(data.created_at)}</p>
+        ${data.ai_summary ? `<div class="alert alert-info"><strong>AI:</strong> ${data.ai_summary}</div>` : ''}
+    `;
+}
+
+function renderLinkCheckDetails(data) {
+    return `
+        <h5>URL: ${SecurityCheck.escapeHtml(data.url)}</h5>
+        <p><strong>Угроза:</strong> <span class="badge bg-${data.threat_level === 'safe' ? 'success' : 'danger'}">${data.threat_level}</span></p>
+        <p><strong>Уверенность:</strong> ${data.confidence_score}%</p>
+        <p><strong>VirusTotal:</strong> ${data.virustotal_positives}/${data.virustotal_total}</p>
+        <p><strong>Datum:</strong> ${SecurityCheck.formatDateTime(data.created_at)}</p>
+        ${data.ai_explanation ? `<div class="alert alert-info"><strong>AI:</strong> ${data.ai_explanation}</div>` : ''}
+    `;
+}
+
+function renderDomainIntelDetails(data) {
+    return `
+        <h5>Домен: ${SecurityCheck.escapeHtml(data.domain)}</h5>
+        <p><strong>Репутация:</strong> ${data.reputation_score}/100</p>
+        <p><strong>Registrar:</strong> ${data.whois_info?.registrar || '-'}</p>
+        <p><strong>Создан:</strong> ${data.whois_info?.creation_date || '-'}</p>
+        <p><strong>Datum:</strong> ${SecurityCheck.formatDateTime(data.created_at)}</p>
+        ${data.ai_explanation ? `<div class="alert alert-info"><strong>AI:</strong> ${data.ai_explanation}</div>` : ''}
+    `;
+}
+
+async function deleteItem(type, id) {
+    if (!confirm('Diesen Eintrag löschen?')) return;
+    
+    try {
+        if (type === 'web_scan') {
+            await SecurityCheckAPI.deleteWebScan(id);
+        } else if (type === 'link_check') {
+            await SecurityCheckAPI.deleteLinkCheck(id);
+        } else if (type === 'domain_intel') {
+            await SecurityCheckAPI.deleteDomainIntel(id);
+        }
+        
+        SecurityCheck.showNotification('Запись удалена', 'success');
+        loadHistory();
+        
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler: ' + error.message, 'danger');
+    }
+}
+
+// Загрузить при открытии
+loadHistory();
+</script>
+{% endblock %}

@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Registrierung - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Konto erstellen</h2>
+                    <p class="text-muted">Starten Sie kostenlos mit der Sicherheitsprüfung</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-Mail</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   placeholder="ihre@email.de"
+                                   required 
+                                   autofocus
+                                   value="{{ request.form.get('email', '') }}">
+                        </div>
+                        <small class="form-text text-muted">
+                            Wir geben Ihre E-Mail niemals an Dritte weiter
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Passwort</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Mindestens 8 Zeichen"
+                                   required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">Das Passwort muss enthalten:</small>
+                            <ul class="small text-muted" id="passwordRequirements">
+                                <li id="req-length"><i class="fas fa-times text-danger"></i> Mindestens 8 Zeichen</li>
+                                <li id="req-upper"><i class="fas fa-times text-danger"></i> Einen Großbuchstaben</li>
+                                <li id="req-lower"><i class="fas fa-times text-danger"></i> Einen Kleinbuchstaben</li>
+                                <li id="req-number"><i class="fas fa-times text-danger"></i> Eine Ziffer</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password_confirm" class="form-label">Passwort bestätigen</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password_confirm" 
+                                   name="password_confirm" 
+                                   placeholder="Passwort wiederholen"
+                                   required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" 
+                               class="form-check-input" 
+                               id="terms" 
+                               name="terms"
+                               required>
+                        <label class="form-check-label" for="terms">
+                            Ich stimme den <a href="{{ url_for('main.agb') }}" target="_blank">Nutzungsbedingungen</a> und der
+                            <a href="{{ url_for('main.datenschutz') }}" target="_blank">Datenschutzerklärung</a> zu
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-2" id="submitBtn" disabled>
+                        <i class="fas fa-user-plus"></i> Registrieren
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        Bereits ein Konto? 
+                        <a href="{{ url_for('auth.login') }}">Anmelden</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Vorteile -->
+        <div class="card mt-4 border-0 bg-light">
+            <div class="card-body">
+                <h5><i class="fas fa-gift text-primary"></i> Kostenloser Plan enthält:</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> 10 Website-Prüfungen pro Monat</li>
+                    <li><i class="fas fa-check text-success"></i> 50 Link-Prüfungen pro Monat</li>
+                    <li><i class="fas fa-check text-success"></i> 5 WiFi-Scans pro Monat</li>
+                    <li><i class="fas fa-check text-success"></i> 5 Domain-Prüfungen pro Monat</li>
+                    <li><i class="fas fa-check text-success"></i> Basis-Sicherheitsbericht</li>
+                </ul>
+                <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-outline-primary btn-sm">
+                    Alle Tarife ansehen <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Passwort anzeigen/verbergen
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const icon = this.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+
+// Passwortanforderungen prüfen
+const password = document.getElementById('password');
+const submitBtn = document.getElementById('submitBtn');
+const terms = document.getElementById('terms');
+
+function checkPasswordRequirements() {
+    const value = password.value;
+    const requirements = {
+        'req-length': value.length >= 8,
+        'req-upper': /[A-Z]/.test(value),
+        'req-lower': /[a-z]/.test(value),
+        'req-number': /[0-9]/.test(value)
+    };
+    
+    let allMet = true;
+    
+    for (const [id, met] of Object.entries(requirements)) {
+        const element = document.getElementById(id);
+        const icon = element.querySelector('i');
+        
+        if (met) {
+            icon.className = 'fas fa-check text-success';
+        } else {
+            icon.className = 'fas fa-times text-danger';
+            allMet = false;
+        }
+    }
+    
+    // Button aktivieren wenn alle Anforderungen erfüllt sind und Checkbox aktiviert ist
+    submitBtn.disabled = !(allMet && terms.checked);
+}
+
+password.addEventListener('input', checkPasswordRequirements);
+terms.addEventListener('change', checkPasswordRequirements);
+
+// Formularvalidierung
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const pass = document.getElementById('password').value;
+    const confirmPass = document.getElementById('password_confirm').value;
+    
+    if (pass !== confirmPass) {
+        e.preventDefault();
+        alert('Passwörter stimmen nicht überein');
+        return false;
+    }
+    
+    if (!terms.checked) {
+        e.preventDefault();
+        alert('Sie müssen den Nutzungsbedingungen zustimmen');
+        return false;
+    }
+});
+</script>
+{% endblock %}

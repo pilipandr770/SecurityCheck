@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Anmelden - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Anmelden</h2>
+                    <p class="text-muted">Melden Sie sich an, um mit der Sicherheitsprüfung zu beginnen</p>
+                </div>
+                
+                <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-Mail</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   placeholder="ihre@email.de"
+                                   required 
+                                   autofocus
+                                   value="{{ request.form.get('email', '') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Passwort</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Passwort eingeben"
+                                   required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" 
+                               class="form-check-input" 
+                               id="remember" 
+                               name="remember">
+                        <label class="form-check-label" for="remember">
+                            Angemeldet bleiben
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <i class="fas fa-sign-in-alt"></i> Anmelden
+                    </button>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="text-muted">
+                        Kein Konto? 
+                        <a href="{{ url_for('auth.register') }}">Registrieren</a>
+                    </p>
+                    <p class="text-muted">
+                        <a href="#" class="text-decoration-none">Passwort vergessen?</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Informationsblock -->
+        <div class="card mt-4 border-0 bg-light">
+            <div class="card-body">
+                <h5><i class="fas fa-info-circle text-info"></i> Warum SecurityCheck?</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> SSL-Zertifikatsprüfung</li>
+                    <li><i class="fas fa-check text-success"></i> Analyse von Sicherheitsheadern</li>
+                    <li><i class="fas fa-check text-success"></i> Virenscan für Dateien</li>
+                    <li><i class="fas fa-check text-success"></i> Phishing-Link-Prüfung</li>
+                    <li><i class="fas fa-check text-success"></i> Domain-Analyse</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Passwort anzeigen/verbergen
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const icon = this.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+
+// Formularvalidierung
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+        e.preventDefault();
+        alert('Bitte füllen Sie alle Felder aus');
+    }
+});
+</script>
+{% endblock %}

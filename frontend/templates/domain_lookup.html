@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}Domain-Prüfung - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-globe"></i> Domain-Intelligence
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    WHOIS-Informationen, DNS-Einträge, Domain-Historie und Reputationsprüfung.
+                </p>
+                
+                <!-- Eingabeformular -->
+                <form id="domainForm" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-10">
+                            <input type="text" 
+                                   class="form-control form-control-lg" 
+                                   id="domainInput"
+                                   placeholder="example.com"
+                                   required
+                                   pattern="^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$">
+                            <small class="text-muted">Domain-Name ohne http:// eingeben</small>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="checkBtn">
+                                <i class="fas fa-search"></i> Prüfen
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Limits -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Ihr Limit:</strong>
+                    {% if current_user.subscription_plan.value == 'free' %}
+                        10 Prüfungen pro Tag (verbleibend: {{ limits.domain_lookups_remaining }})
+                    {% elif current_user.subscription_plan.value == 'starter' %}
+                        100 Prüfungen pro Tag (verbleibend: {{ limits.domain_lookups_remaining }})
+                    {% else %}
+                        Unbegrenzte Prüfungen
+                    {% endif %}
+                </div>
+                
+                <!-- Laden -->
+                <div id="loading" style="display: none;" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Laden...</span>
+                    </div>
+                    <p class="mt-3">Domain-Informationen werden gesammelt...</p>
+                </div>
+                
+                <!-- Ergebnisse -->
+                <div id="results" style="display: none;">
+                    <!-- Reputation -->
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <h5 class="mb-3">Reputationsbewertung</h5>
+                            <div class="security-grade" id="reputationGrade">
+                                A
+                            </div>
+                            <h2 class="mt-3" id="reputationScore">85/100</h2>
+                            <p class="text-muted" id="reputationStatus">Gute Reputation</p>
+                        </div>
+                    </div>
+                    
+                    <!-- AI-Erklärung -->
+                    <div class="card mb-4" id="aiExplanationCard" style="display: none;">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-robot"></i> KI-Erklärung
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p id="aiExplanation" class="mb-0"></p>
+                        </div>
+                    </div>
+                    
+                    <!-- WHOIS-Informationen -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i> WHOIS-Informationen
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <strong>Registrar:</strong>
+                                    <p id="registrar" class="mb-0">-</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Registrierungsdatum:</strong>
+                                    <p id="creationDate" class="mb-0">-</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Ablaufdatum:</strong>
+                                    <p id="expirationDate" class="mb-0">-</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <strong>Domain-Alter:</strong>
+                                    <p id="domainAge" class="mb-0">-</p>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <strong>Name Servers:</strong>
+                                    <div id="nameservers" class="mt-2">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DNS-Einträge -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-server"></i> DNS-Einträge
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="nav nav-tabs mb-3" id="dnsTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="a-tab" data-bs-toggle="tab" data-bs-target="#a-records" type="button">A</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="aaaa-tab" data-bs-toggle="tab" data-bs-target="#aaaa-records" type="button">AAAA</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="mx-tab" data-bs-toggle="tab" data-bs-target="#mx-records" type="button">MX</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="txt-tab" data-bs-toggle="tab" data-bs-target="#txt-records" type="button">TXT</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="ns-tab" data-bs-toggle="tab" data-bs-target="#ns-records" type="button">NS</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="dnsTabContent">
+                                <div class="tab-pane fade show active" id="a-records">
+                                    <div id="aRecordsList">Keine Einträge</div>
+                                </div>
+                                <div class="tab-pane fade" id="aaaa-records">
+                                    <div id="aaaaRecordsList">Keine Einträge</div>
+                                </div>
+                                <div class="tab-pane fade" id="mx-records">
+                                    <div id="mxRecordsList">Keine Einträge</div>
+                                </div>
+                                <div class="tab-pane fade" id="txt-records">
+                                    <div id="txtRecordsList">Keine Einträge</div>
+                                </div>
+                                <div class="tab-pane fade" id="ns-records">
+                                    <div id="nsRecordsList">Keine Einträge</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- E-Mail-Sicherheit -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-envelope-open-text"></i> E-Mail-Sicherheit
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4 mb-3">
+                                    <h6>SPF</h6>
+                                    <span class="badge badge-lg" id="spfBadge">-</span>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <h6>DKIM</h6>
+                                    <span class="badge badge-lg" id="dkimBadge">-</span>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <h6>DMARC</h6>
+                                    <span class="badge badge-lg" id="dmarcBadge">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Wayback Machine -->
+                    <div class="card mb-4" id="waybackCard" style="display: none;">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-history"></i> Historie (Wayback Machine)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                <strong>Erster Snapshot:</strong> <span id="firstSnapshot">-</span>
+                            </p>
+                            <p>
+                                <strong>Letzter Snapshot:</strong> <span id="lastSnapshot">-</span>
+                            </p>
+                            <p>
+                                <strong>Gesamt Snapshots:</strong> <span id="totalSnapshots">-</span>
+                            </p>
+                            <a href="#" id="waybackLink" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt"></i> In Wayback Machine öffnen
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Aktionen -->
+                    <div class="text-center">
+                        <button class="btn btn-primary" onclick="window.location.reload()">
+                            <i class="fas fa-redo"></i> Andere Domain prüfen
+                        </button>
+                        <a href="{{ url_for('dashboard.history_page') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-history"></i> Historie
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Information -->
+                <div class="card bg-light mt-4">
+                    <div class="card-body">
+                        <h6><i class="fas fa-info-circle"></i> Was wird überprüft:</h6>
+                        <ul class="mb-0">
+                            <li><strong>WHOIS-Daten</strong> - Registrar, Daten, Eigentümer</li>
+                            <li><strong>DNS-Einträge</strong> - A, AAAA, MX, TXT, NS, CNAME</li>
+                            <li><strong>E-Mail-Sicherheit</strong> - SPF, DKIM, DMARC</li>
+                            <li><strong>Domain-Historie</strong> - Wayback Machine</li>
+                            <li><strong>Reputation</strong> - Zuverlässigkeitsbewertung</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const domainForm = document.getElementById('domainForm');
+const domainInput = document.getElementById('domainInput');
+const checkBtn = document.getElementById('checkBtn');
+const loading = document.getElementById('loading');
+const results = document.getElementById('results');
+
+domainForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const domain = domainInput.value.trim();
+    if (!domain) return;
+    
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird geprüft...';
+    
+    loading.style.display = 'block';
+    results.style.display = 'none';
+    
+    try {
+        const result = await SecurityCheckAPI.lookupDomain(domain);
+        displayResults(result.intel);
+        
+        // Получить DNS записи
+        const dnsRecords = await SecurityCheckAPI.getDnsRecords(result.intel.id);
+        displayDnsRecords(dnsRecords.dns);
+        
+        loading.style.display = 'none';
+        results.style.display = 'block';
+        
+        SecurityCheck.showNotification('Prüfung abgeschlossen', 'success');
+        
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler: ' + error.message, 'danger');
+        loading.style.display = 'none';
+    } finally {
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = '<i class="fas fa-search"></i> Prüfen';
+    }
+});
+
+function displayResults(data) {
+    // Reputation
+    const score = data.reputation_score || 0;
+    const grade = SecurityCheckUtils.getSecurityGrade(score);
+    
+    document.getElementById('reputationGrade').textContent = grade;
+    document.getElementById('reputationGrade').className = `security-grade grade-${grade.toLowerCase()}`;
+    document.getElementById('reputationScore').textContent = `${score}/100`;
+    
+    let status = 'Unbekannt';
+    if (score >= 80) status = 'Ausgezeichnete Reputation';
+    else if (score >= 60) status = 'Gute Reputation';
+    else if (score >= 40) status = 'Zweifelhafte Reputation';
+    else status = 'Schlechte Reputation';
+    
+    document.getElementById('reputationStatus').textContent = status;
+    
+    // KI-Erklärung
+    if (data.ai_explanation) {
+        document.getElementById('aiExplanation').textContent = data.ai_explanation;
+        document.getElementById('aiExplanationCard').style.display = 'block';
+    }
+    
+    // WHOIS
+    const whois = data.whois_info || {};
+    document.getElementById('registrar').textContent = whois.registrar || 'Nicht angegeben';
+    document.getElementById('creationDate').textContent = 
+        whois.creation_date ? SecurityCheck.formatDate(whois.creation_date) : 'Nicht angegeben';
+    document.getElementById('expirationDate').textContent = 
+        whois.expiration_date ? SecurityCheck.formatDate(whois.expiration_date) : 'Nicht angegeben';
+    
+    // Domain-Alter
+    if (whois.creation_date) {
+        const created = new Date(whois.creation_date);
+        const now = new Date();
+        const diffYears = Math.floor((now - created) / (365 * 24 * 60 * 60 * 1000));
+        document.getElementById('domainAge').innerHTML = 
+            `<span class="badge ${diffYears < 1 ? 'bg-warning' : 'bg-success'}">${diffYears} Jahre</span>`;
+    }
+    
+    // Name Servers
+    if (whois.nameservers && whois.nameservers.length > 0) {
+        const nameserversHtml = whois.nameservers.map(ns => 
+            `<span class="badge bg-secondary me-1">${ns}</span>`
+        ).join('');
+        document.getElementById('nameservers').innerHTML = nameserversHtml;
+    }
+    
+    // E-Mail-Sicherheit
+    const spfStatus = whois.spf || 'not_configured';
+    const dkimStatus = whois.dkim || 'not_configured';
+    const dmarcStatus = whois.dmarc || 'not_configured';
+    
+    document.getElementById('spfBadge').textContent = spfStatus === 'pass' ? 'Konfiguriert' : 'Nicht konfiguriert';
+    document.getElementById('spfBadge').className = `badge badge-lg ${spfStatus === 'pass' ? 'bg-success' : 'bg-danger'}`;
+    
+    document.getElementById('dkimBadge').textContent = dkimStatus === 'pass' ? 'Konfiguriert' : 'Nicht konfiguriert';
+    document.getElementById('dkimBadge').className = `badge badge-lg ${dkimStatus === 'pass' ? 'bg-success' : 'bg-danger'}`;
+    
+    document.getElementById('dmarcBadge').textContent = dmarcStatus === 'pass' ? 'Konfiguriert' : 'Nicht konfiguriert';
+    document.getElementById('dmarcBadge').className = `badge badge-lg ${dmarcStatus === 'pass' ? 'bg-success' : 'bg-danger'}`;
+    
+    // Wayback Machine
+    if (whois.wayback_data) {
+        const wb = whois.wayback_data;
+        document.getElementById('firstSnapshot').textContent = 
+            wb.first_snapshot ? SecurityCheck.formatDate(wb.first_snapshot) : '-';
+        document.getElementById('lastSnapshot').textContent = 
+            wb.last_snapshot ? SecurityCheck.formatDate(wb.last_snapshot) : '-';
+        document.getElementById('totalSnapshots').textContent = wb.total_snapshots || 0;
+        document.getElementById('waybackLink').href = 
+            `https://web.archive.org/web/*/${data.domain}`;
+        document.getElementById('waybackCard').style.display = 'block';
+    }
+}
+
+function displayDnsRecords(dnsData) {
+    // A-Einträge
+    if (dnsData.A && dnsData.A.length > 0) {
+        document.getElementById('aRecordsList').innerHTML = dnsData.A.map(ip => 
+            `<div class="mb-2"><code>${ip}</code></div>`
+        ).join('');
+    }
+    
+    // AAAA-Einträge
+    if (dnsData.AAAA && dnsData.AAAA.length > 0) {
+        document.getElementById('aaaaRecordsList').innerHTML = dnsData.AAAA.map(ip => 
+            `<div class="mb-2"><code>${ip}</code></div>`
+        ).join('');
+    }
+    
+    // MX-Einträge
+    if (dnsData.MX && dnsData.MX.length > 0) {
+        document.getElementById('mxRecordsList').innerHTML = dnsData.MX.map(mx => 
+            `<div class="mb-2"><code>${mx}</code></div>`
+        ).join('');
+    }
+    
+    // TXT-Einträge
+    if (dnsData.TXT && dnsData.TXT.length > 0) {
+        document.getElementById('txtRecordsList').innerHTML = dnsData.TXT.map(txt => 
+            `<div class="mb-2"><code class="d-block text-wrap">${txt}</code></div>`
+        ).join('');
+    }
+    
+    // NS-Einträge
+    if (dnsData.NS && dnsData.NS.length > 0) {
+        document.getElementById('nsRecordsList').innerHTML = dnsData.NS.map(ns => 
+            `<div class="mb-2"><code>${ns}</code></div>`
+        ).join('');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}Unsere Projekte - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 mb-3">🛡️ Защищенные проекты</h1>
+            <p class="lead">
+                Мы разрабатываем сайты и интернет-магазины с максимальной защитой от киберугроз. 
+                Посмотрите, как мы защищаем бизнес наших клиентов.
+            </p>
+        </div>
+    </div>
+
+    <!-- Security Comparison -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">⚔️ Ваш сайт vs Наш защищенный сайт</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-danger">❌ Normale Website</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> SQL-инъекции</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> XSS атаки</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> CSRF уязвимости</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> Незащищенные формы</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> Слабые пароли</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> HTTP вместо HTTPS</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> Устаревшие библиотеки</li>
+                                <li class="mb-2"><i class="fas fa-times-circle text-danger me-2"></i> Открытые директории</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-success">✅ Наш защищенный сайт</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Защита от SQL-инъекций</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Защита от XSS</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> CSRF токены</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Валидация всех форм</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Двухфакторная аутентификация</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> SSL/TLS шифрование</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Актуальные зависимости</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Security headers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Projects -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">🎨 Наши защищенные проекты</h2>
+        </div>
+
+        <!-- Project 1 -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">E-Commerce Platform</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-primary">React</span>
+                        <span class="badge bg-primary">Node.js</span>
+                        <span class="badge bg-primary">PostgreSQL</span>
+                    </div>
+                    <p><strong>Технологии безопасности:</strong></p>
+                    <ul class="small">
+                        <li>PCI DSS compliance для платежей</li>
+                        <li>End-to-end шифрование данных</li>
+                        <li>Rate limiting для API</li>
+                        <li>JWT с refresh tokens</li>
+                        <li>Regular security audits</li>
+                    </ul>
+                    <div class="alert alert-success mb-0">
+                        <strong>Security Score: 98/100</strong>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://www.andrii-it.de/" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Посмотреть сайт
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Banking Dashboard</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-primary">Vue.js</span>
+                        <span class="badge bg-primary">Django</span>
+                        <span class="badge bg-primary">Redis</span>
+                    </div>
+                    <p><strong>Технологии безопасности:</strong></p>
+                    <ul class="small">
+                        <li>Multi-factor authentication</li>
+                        <li>Encrypted database backups</li>
+                        <li>Session management</li>
+                        <li>IP whitelisting</li>
+                        <li>Audit logging</li>
+                    </ul>
+                    <div class="alert alert-success mb-0">
+                        <strong>Security Score: 99/100</strong>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://www.andrii-it.de/" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Посмотреть сайт
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Healthcare Portal</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="badge bg-primary">Angular</span>
+                        <span class="badge bg-primary">Flask</span>
+                        <span class="badge bg-primary">MySQL</span>
+                    </div>
+                    <p><strong>Технологии безопасности:</strong></p>
+                    <ul class="small">
+                        <li>HIPAA compliance</li>
+                        <li>Data encryption at rest</li>
+                        <li>Secure file uploads</li>
+                        <li>Access control lists</li>
+                        <li>GDPR compliance</li>
+                    </ul>
+                    <div class="alert alert-success mb-0">
+                        <strong>Security Score: 97/100</strong>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="https://www.andrii-it.de/" class="btn btn-outline-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> Посмотреть сайт
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="row mb-5">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow-lg border-primary">
+                <div class="card-body text-center py-5">
+                    <h2 class="mb-4">🚀 Хотите такой же защищенный сайт?</h2>
+                    <p class="lead mb-4">
+                        Мы разработаем для вас современный сайт или интернет-магазин 
+                        с максимальной защитой от всех известных киберугроз.
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-shield-alt fa-3x text-primary mb-2"></i>
+                                <h5>Максимальная защита</h5>
+                                <p class="small">Защита от всех типов атак</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-rocket fa-3x text-success mb-2"></i>
+                                <h5>Быстрая разработка</h5>
+                                <p class="small">От 2 недель до запуска</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <i class="fas fa-headset fa-3x text-info mb-2"></i>
+                                <h5>Support 24/7</h5>
+                                <p class="small">Всегда на связи</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg me-2" data-bs-toggle="modal" data-bs-target="#contactModal">
+                        <i class="fas fa-paper-plane"></i> Beratung erhalten
+                    </button>
+                    <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-star"></i> Tarife ansehen
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">💬 Отзывы клиентов</h2>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <p class="mb-3">
+                        "После взлома старого сайта обратились к Andrii. Новый сайт работает 
+                        уже год без единого инцидента. Рекомендую!"
+                    </p>
+                    <strong>— Online Shop Owner</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <p class="mb-3">
+                        "Профессиональный подход к безопасности. Провели полный аудит 
+                        и исправили все уязвимости. Спасибо!"
+                    </p>
+                    <strong>— SaaS Startup</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                    </div>
+                    <p class="mb-3">
+                        "Отличная работа! Сайт быстрый, защищенный и красивый. 
+                        Клиенты довольны, я доволен."
+                    </p>
+                    <strong>— E-commerce Business</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">📞 Beratung erhalten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="portfolioContactForm">
+                    <div class="mb-3">
+                        <label class="form-label">Ваше имя</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">E-Mail</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Telefon</label>
+                        <input type="tel" class="form-control" name="phone" placeholder="+49...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Typ проекта</label>
+                        <select class="form-select" name="project_type" required>
+                            <option value="">Выберите...</option>
+                            <option value="website">Корпоративный сайт</option>
+                            <option value="ecommerce">Интернет-магазин</option>
+                            <option value="webapp">Веб-приложение</option>
+                            <option value="audit">Аудит безопасности</option>
+                            <option value="other">Другое</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Сообщение</label>
+                        <textarea class="form-control" name="message" rows="4" 
+                                  placeholder="Расскажите о вашем проекте..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="submitPortfolioContact()">
+                    <i class="fas fa-paper-plane"></i> Отправить
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function submitPortfolioContact() {
+    const form = document.getElementById('portfolioContactForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        // TODO: Подключить API для отправки заявок
+        SecurityCheck.showNotification('Спасибо! Мы свяжемся с вами в ближайшее время.', 'success');
+        
+        const modalElement = document.getElementById('contactModal');
+        if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        }
+        form.reset();
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler отправки. Попробуйте позже или напишите на andrii.it.info@gmail.com', 'danger');
+    }
+}
+</script>
+{% endblock %}

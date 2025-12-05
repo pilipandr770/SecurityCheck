@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SecurityCheck - Umfassende Sicherheitsprüfung von Websites und Dateien für Unternehmen">
+    <title>{% block title %}SecurityCheck - Sicherheitsprüfung{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
+                <i class="fas fa-shield-alt"></i> SecurityCheck
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if current_user.is_authenticated %}
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard.index') }}">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard.web_scan_page') }}">
+                                <i class="fas fa-globe"></i> Website-Prüfung
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard.link_check_page') }}">
+                                <i class="fas fa-link"></i> Link-Check
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard.wifi_scan_page') }}">
+                                <i class="fas fa-wifi"></i> WiFi-Scanner
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <ul class="navbar-nav">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ current_user.email }}
+                                {% if current_user.subscription_tier != 'free' %}
+                                    <span class="badge bg-primary">{{ current_user.subscription_tier|upper }}</span>
+                                {% endif %}
+                                {% if current_user.is_admin %}
+                                    <span class="badge bg-danger">ADMIN</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if current_user.is_admin %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin.index') }}">
+                                    <i class="fas fa-crown"></i> Admin-Panel
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.pricing_page') }}">
+                                    <i class="fas fa-crown"></i> Tarife
+                                </a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('dashboard.settings_page') }}">
+                                    <i class="fas fa-cog"></i> Einstellungen
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt"></i> Abmelden
+                                </a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard.pricing_page') }}">Tarife</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Anmelden</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary" href="{{ url_for('auth.register') }}">Registrieren</a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash-Nachrichten -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Hauptinhalt -->
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Fußzeile -->
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-shield-alt"></i> SecurityCheck</h5>
+                    <p>Einfache und zuverlässige Sicherheitsprüfung für Ihr Unternehmen</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Funktionen</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('dashboard.web_scan_page') }}" class="text-white">Website-Scan</a></li>
+                        <li><a href="{{ url_for('dashboard.link_check_page') }}" class="text-white">Link-Check</a></li>
+                        <li><a href="{{ url_for('dashboard.wifi_scan_page') }}" class="text-white">WiFi-Scanner</a></li>
+                        <li><a href="{{ url_for('main.portfolio') }}" class="text-white">Unsere Projekte</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Rechtliches</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.impressum') }}" class="text-white">Impressum</a></li>
+                        <li><a href="{{ url_for('main.datenschutz') }}" class="text-white">Datenschutz</a></li>
+                        <li><a href="{{ url_for('main.agb') }}" class="text-white">AGB</a></li>
+                        <li><a href="{{ url_for('dashboard.pricing_page') }}" class="text-white">Tarife</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-white">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2024 SecurityCheck. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

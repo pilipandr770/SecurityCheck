@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Einstellungen - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <!-- Sidebar Navigation -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-cog"></i> Einstellungen</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
+                        <i class="fas fa-user me-2"></i> Профиль
+                    </a>
+                    <a href="#subscription" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-star me-2"></i> Подписка
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-lock me-2"></i> Безопасность
+                    </a>
+                    <a href="#usage" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-chart-bar me-2"></i> Использование
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="tab-content">
+                <!-- Profile Tab -->
+                <div class="tab-pane fade show active" id="profile">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-user"></i> Информация профиля</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="profileForm">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">E-Mail</label>
+                                        <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+                                        <small class="text-muted">E-Mail нельзя изменить</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-control" name="full_name" 
+                                               value="{{ current_user.full_name or '' }}" placeholder="Ваше имя">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Компания</label>
+                                        <input type="text" class="form-control" name="company_name" 
+                                               value="{{ current_user.company_name or '' }}" placeholder="Firmenname">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Telefon</label>
+                                        <input type="tel" class="form-control" name="phone" 
+                                               value="{{ current_user.phone or '' }}" placeholder="+49...">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Сохранить изменения
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-trash"></i> Удаление аккаунта</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">
+                                Удаление аккаунта приведет к безвозвратному удалению всех ваших данных, 
+                                включая историю сканирований и отчеты.
+                            </p>
+                            <button class="btn btn-danger" onclick="deleteAccount()">
+                                <i class="fas fa-exclamation-triangle"></i> Konto löschen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscription Tab -->
+                <div class="tab-pane fade" id="subscription">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-star"></i> Текущая подписка</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h3>
+                                        {% if current_user.subscription_plan.value == 'free' %}
+                                            <span class="badge bg-secondary">FREE</span>
+                                        {% elif current_user.subscription_plan.value == 'starter' %}
+                                            <span class="badge bg-warning">STARTER</span>
+                                        {% else %}
+                                            <span class="badge bg-success">PRO</span>
+                                        {% endif %}
+                                    </h3>
+                                    <p class="text-muted">
+                                        {% if current_user.subscription_plan.value == 'free' %}
+                                            Бесплатный тариф
+                                        {% elif current_user.subscription_plan.value == 'starter' %}
+                                            €9.99 pro Monat
+                                        {% else %}
+                                            €29.99 pro Monat
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    {% if current_user.subscription_expires %}
+                                    <p class="mb-1"><strong>Действует до:</strong></p>
+                                    <p>{{ current_user.subscription_expires.strftime('%d.%m.%Y') }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-primary">
+                                    <i class="fas fa-arrow-up"></i> Изменить тариф
+                                </a>
+                                
+                                {% if current_user.subscription_plan.value != 'free' %}
+                                <button class="btn btn-outline-danger" onclick="cancelSubscription()">
+                                    <i class="fas fa-times"></i> Отменить подписку
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            {% if current_user.stripe_customer_id %}
+                            <a href="#" onclick="openCustomerPortal(); return false;" class="btn btn-outline-secondary">
+                                <i class="fas fa-credit-card"></i> Управление платежами
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div class="tab-pane fade" id="security">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-lock"></i> Смена пароля</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="passwordForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Aktuelles Passwort</label>
+                                    <input type="password" class="form-control" name="current_password" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Neues Passwort</label>
+                                    <input type="password" class="form-control" name="new_password" 
+                                           minlength="8" required>
+                                    <small class="text-muted">Минимум 8 символов</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Подтвердите новый пароль</label>
+                                    <input type="password" class="form-control" name="confirm_password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-key"></i> Passwort ändern
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Последний вход</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if current_user.last_login %}
+                            <p>
+                                <i class="fas fa-clock me-2"></i>
+                                {{ current_user.last_login.strftime('%d.%m.%Y в %H:%M') }}
+                            </p>
+                            {% else %}
+                            <p class="text-muted">Информация недоступна</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Tab -->
+                <div class="tab-pane fade" id="usage">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Статистика использования</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-4">Использование лимитов за текущий месяц</p>
+
+                            <div id="usageStats">
+                                <div class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Загрузка...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Лимиты тарифа</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if current_user.subscription_plan.value == 'free' %}
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 10 Website-Scans pro Monat</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 50 Link-Checks pro Monat</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5 WiFi-Scans pro Monat</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5 Domain-Prüfungen pro Monat</li>
+                            </ul>
+                            <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-primary mt-3">
+                                Увеличить лимиты
+                            </a>
+                            {% elif current_user.subscription_plan.value == 'starter' %}
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt проверки сайтов</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt проверки ссылок</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt WiFi-сканирования</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt проверки доменов</li>
+                            </ul>
+                            {% else %}
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Все возможности безлимитно</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> API-Zugriff</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Experten-Beratung (1 Stunde/Monat)</li>
+                                <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Prioritäts-Support</li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Загрузка статистики использования
+async function loadUsageStats() {
+    try {
+        const response = await fetch('/api/usage/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            displayUsageStats(data);
+        }
+    } catch (error) {
+        console.error('Error loading usage stats:', error);
+        document.getElementById('usageStats').innerHTML = 
+            '<div class="alert alert-danger">Fehler загрузки статистики</div>';
+    }
+}
+
+function displayUsageStats(data) {
+    const usage = data.usage;
+    const container = document.getElementById('usageStats');
+    
+    let html = '<div class="row g-3">';
+    
+    // Web Scans
+    html += createUsageCard('Website-Scans', usage.web_scans, 'fa-globe', 'primary');
+    
+    // Link Checks
+    html += createUsageCard('Проверки ссылок', usage.link_checks, 'fa-link', 'success');
+    
+    // WiFi Scans
+    html += createUsageCard('WiFi-сканирования', usage.wifi_scans, 'fa-wifi', 'warning');
+    
+    // Domain Lookups
+    html += createUsageCard('Проверки доменов', usage.domain_lookups, 'fa-server', 'info');
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function createUsageCard(title, usage, icon, color) {
+    const isUnlimited = usage.limit === -1;
+    const percentage = isUnlimited ? 0 : (usage.used / usage.limit * 100);
+    const remaining = isUnlimited ? '∞' : usage.remaining;
+    
+    return `
+        <div class="col-md-6">
+            <div class="card border-${color}">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas ${icon} text-${color} me-2"></i>${title}
+                    </h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Использовано: ${usage.used}</span>
+                        <span>Verbleibend: ${remaining}</span>
+                    </div>
+                    ${!isUnlimited ? `
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-${color}" role="progressbar" 
+                             style="width: ${percentage}%" 
+                             aria-valuenow="${usage.used}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="${usage.limit}">
+                        </div>
+                    </div>
+                    ` : '<p class="mb-0 text-muted">Unbegrenzt</p>'}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Обновление профиля
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+        // TODO: Добавить API endpoint для обновления профиля
+        SecurityCheck.showNotification('Профиль обновлен', 'success');
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler обновления профиля', 'danger');
+    }
+});
+
+// Смена пароля
+document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    if (formData.get('new_password') !== formData.get('confirm_password')) {
+        SecurityCheck.showNotification('Пароли не совпадают', 'danger');
+        return;
+    }
+    
+    try {
+        // TODO: Добавить API endpoint для смены пароля
+        SecurityCheck.showNotification('Пароль изменен', 'success');
+        e.target.reset();
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler смены пароля', 'danger');
+    }
+});
+
+// Отмена подписки
+async function cancelSubscription() {
+    if (!confirm('Sind Sie sicher, dass Sie das Abonnement kündigen möchten? Es bleibt bis zum Ende der bezahlten Periode aktiv.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/subscription/cancel', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            SecurityCheck.showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            SecurityCheck.showNotification(data.error, 'danger');
+        }
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler отмены подписки', 'danger');
+    }
+}
+
+// Открыть Stripe Customer Portal
+async function openCustomerPortal() {
+    try {
+        const response = await fetch('/api/subscription/portal');
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.portal_url;
+        } else {
+            SecurityCheck.showNotification(data.error, 'danger');
+        }
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler открытия портала', 'danger');
+    }
+}
+
+// Удаление аккаунта
+async function deleteAccount() {
+    if (!confirm('SIND SIE SICHER? Diese Aktion ist UNWIDERRUFLICH! Alle Ihre Daten werden für immer gelöscht.')) {
+        return;
+    }
+    
+    const confirmation = prompt('Введите "DELETE" для подтверждения удаления аккаунта:');
+    if (confirmation !== 'DELETE') {
+        SecurityCheck.showNotification('Удаление отменено', 'info');
+        return;
+    }
+    
+    try {
+        // TODO: Добавить API endpoint для удаления аккаунта
+        SecurityCheck.showNotification('Аккаунт удален', 'success');
+        setTimeout(() => window.location.href = '/', 2000);
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler удаления аккаунта', 'danger');
+    }
+}
+
+// Загрузить статистику при переходе на вкладку Usage
+document.querySelector('a[href="#usage"]').addEventListener('click', () => {
+    loadUsageStats();
+});
+
+// Загрузить сразу если вкладка активна
+if (window.location.hash === '#usage') {
+    loadUsageStats();
+}
+</script>
+{% endblock %}

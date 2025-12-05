@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Zugriff verweigert{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 text-center">
+            <div class="error-template">
+                <i class="fas fa-ban fa-5x text-danger mb-4"></i>
+                <h1 class="display-1">403</h1>
+                <h2>Zugriff verweigert</h2>
+                <div class="error-details mb-4">
+                    <p class="lead">Sie haben keine Berechtigung für den Zugriff auf diese Seite.</p>
+                    <p class="text-muted">Пожалуйста, войдите в систему или обновите подписку.</p>
+                </div>
+                <div class="error-actions">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </a>
+                    <a href="{{ url_for('subscription.pricing') }}" class="btn btn-warning btn-lg">
+                        <i class="fas fa-crown"></i> Tarifы
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

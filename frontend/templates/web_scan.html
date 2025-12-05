@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+
+{% block title %}Website-Prüfung - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-globe"></i> Website-Sicherheitsprüfung
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    Комплексная проверка веб-сайта на уязвимости: SSL сертификаты, 
+                    заголовки безопасности, формы загрузки файлов и многое другое.
+                </p>
+                
+                <!-- Форма сканирования -->
+                <form id="scanForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="urlInput" class="form-label">URL сайта</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text">
+                                <i class="fas fa-link"></i>
+                            </span>
+                            <input type="url" 
+                                   class="form-control" 
+                                   id="urlInput" 
+                                   name="url"
+                                   placeholder="https://example.com"
+                                   required>
+                            <button type="submit" class="btn btn-primary" id="scanBtn">
+                                <i class="fas fa-search"></i> Проверить
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Введите полный URL сайта (https://example.com)
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Лимиты -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Ваш лимит:</strong> 
+                    {% if current_user.subscription_plan.value == 'free' %}
+                        10 проверок в день (осталось: {{ limits.web_scans_remaining }})
+                    {% elif current_user.subscription_plan.value == 'starter' %}
+                        100 проверок в день (осталось: {{ limits.web_scans_remaining }})
+                    {% else %}
+                        Unbegrenzt проверки
+                    {% endif %}
+                    
+                    {% if current_user.subscription_plan.value == 'free' %}
+                        <a href="{{ url_for('dashboard.pricing_page') }}" class="alert-link ms-2">
+                            Улучшить тариф <i class="fas fa-arrow-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Результаты -->
+                <div id="scanResults" style="display: none;">
+                    <!-- Fortschritt -->
+                    <div id="scanProgress" class="mb-4">
+                        <h5>Scannen...</h5>
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: 0%" 
+                                 id="progressBar">0%</div>
+                        </div>
+                        <small class="text-muted mt-2 d-block" id="progressText">Подключение к сайту...</small>
+                    </div>
+                    
+                    <!-- Результат -->
+                    <div id="scanResult" style="display: none;">
+                        <!-- Bewertung безопасности -->
+                        <div class="card mb-4 border-0 bg-light">
+                            <div class="card-body text-center">
+                                <h4 class="mb-3">Bewertung безопасности</h4>
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <div class="security-score" id="securityScore">0</div>
+                                        <div class="security-grade" id="securityGrade">F</div>
+                                    </div>
+                                    <div class="col-md-8 text-start">
+                                        <div class="mb-2">
+                                            <strong>SSL:</strong> <span id="sslScore">0</span>/100
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-primary" id="sslBar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>Заголовки:</strong> <span id="headersScore">0</span>/100
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-success" id="headersBar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <strong>HTML:</strong> <span id="htmlScore">0</span>/100
+                                            <div class="progress" style="height: 10px;">
+                                                <div class="progress-bar bg-warning" id="htmlBar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Объяснение -->
+                        <div class="card mb-4" id="aiSummaryCard" style="display: none;">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-robot"></i> AI Объяснение
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p id="aiSummary" class="mb-0"></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Статистика проблем -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card border-danger">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-danger mb-0" id="criticalCount">0</h2>
+                                        <small class="text-muted">Критичных</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card border-warning">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-warning mb-0" id="highCount">0</h2>
+                                        <small class="text-muted">Высоких</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-info mb-0" id="mediumCount">0</h2>
+                                        <small class="text-muted">Средних</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card border-secondary">
+                                    <div class="card-body text-center">
+                                        <h2 class="text-secondary mb-0" id="lowCount">0</h2>
+                                        <small class="text-muted">Низких</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Детальные результаты -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-shield-alt"></i> Обнаруженные уязвимости
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="resultsContainer"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- CTA - Предложение услуг -->
+                        <div class="card bg-gradient-primary text-white mt-4" id="ctaBlock" style="display: none;">
+                            <div class="card-body text-center py-5">
+                                <h3 class="mb-3">
+                                    <i class="fas fa-exclamation-triangle"></i> Обнаружены уязвимости?
+                                </h3>
+                                <p class="lead mb-4">
+                                    Мы разработаем для вас <strong>100% защищенный сайт</strong> без единой уязвимости!
+                                </p>
+                                <div class="row justify-content-center mb-4">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="bg-white text-dark rounded p-3">
+                                            <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                            <div class="fw-bold">100% защита</div>
+                                            <small>Все уязвимости закрыты</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="bg-white text-dark rounded p-3">
+                                            <i class="fas fa-rocket fa-2x text-primary mb-2"></i>
+                                            <div class="fw-bold">Быстро</div>
+                                            <small>От 2 недель до запуска</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="bg-white text-dark rounded p-3">
+                                            <i class="fas fa-certificate fa-2x text-warning mb-2"></i>
+                                            <div class="fw-bold">SSL + CDN</div>
+                                            <small>Бесплатно в комплекте</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="bg-white text-dark rounded p-3">
+                                            <i class="fas fa-headset fa-2x text-info mb-2"></i>
+                                            <div class="fw-bold">Support 24/7</div>
+                                            <small>Всегда на связи</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <h4 class="mb-1">Стоимость от €2,500</h4>
+                                    <small>В зависимости от сложности проекта</small>
+                                </div>
+                                <button class="btn btn-light btn-lg me-2" onclick="showContactForm()">
+                                    <i class="fas fa-envelope"></i> Beratung erhalten
+                                </button>
+                                <a href="{{ url_for('main.portfolio') }}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-eye"></i> Unsere Projekte
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Форма обратной связи -->
+                        <div class="modal fade" id="contactModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Заявка на консультацию</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="contactForm">
+                                            <div class="mb-3">
+                                                <label class="form-label">Name *</label>
+                                                <input type="text" class="form-control" name="name" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">E-Mail *</label>
+                                                <input type="email" class="form-control" name="email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Telefon</label>
+                                                <input type="tel" class="form-control" name="phone">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">URL вашего сайта</label>
+                                                <input type="url" class="form-control" name="website" id="contactWebsite">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Комментарий</label>
+                                                <textarea class="form-control" name="message" rows="3"></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                        <button type="button" class="btn btn-primary" onclick="submitContactForm()">
+                                            <i class="fas fa-paper-plane"></i> Отправить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Aktionen -->
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-primary" onclick="window.location.reload()">
+                                <i class="fas fa-redo"></i> Новая проверка
+                            </button>
+                            <a href="{{ url_for('dashboard.history_page') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-history"></i> Scan-Verlauf
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Примеры -->
+                <div class="card bg-light mt-4">
+                    <div class="card-body">
+                        <h6><i class="fas fa-lightbulb"></i> Что проверяется:</h6>
+                        <ul class="mb-0">
+                            <li>SSL/TLS сертификат (валидность, срок действия)</li>
+                            <li>Security Headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)</li>
+                            <li>HTML проблемы безопасности (inline scripts, устаревшие библиотеки)</li>
+                            <li>Einstellungen cookies (Secure, HttpOnly, SameSite)</li>
+                            <li>Опасные HTTP методы (TRACE, PUT, DELETE)</li>
+                            <li>Формы загрузки файлов и их защита</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+console.log('Web scan page loaded');
+
+let currentScanUrl = '';
+
+function showContactForm() {
+    // Автозаполнение URL сайта
+    const websiteInput = document.getElementById('contactWebsite');
+    if (websiteInput && currentScanUrl) {
+        websiteInput.value = currentScanUrl;
+    }
+    // Показываем модальное окно
+    const modalElement = document.getElementById('contactModal');
+    if (modalElement) {
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+}
+
+async function submitContactForm() {
+    const form = document.getElementById('contactForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const formData = new FormData(form);
+    
+    try {
+        // Здесь будет API вызов для отправки заявки
+        SecurityCheck.showNotification('Спасибо! Мы свяжемся с вами в ближайшее время.', 'success');
+        
+        // Закрываем модальное окно
+        const modalElement = document.getElementById('contactModal');
+        if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        }
+        form.reset();
+    } catch (error) {
+        SecurityCheck.showNotification('Fehler отправки. Попробуйте позже.', 'danger');
+    }
+}
+
+document.getElementById('scanForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const url = document.getElementById('urlInput').value;
+    currentScanUrl = url;
+    
+    const scanBtn = document.getElementById('scanBtn');
+    const resultsDiv = document.getElementById('scanResults');
+    const progressDiv = document.getElementById('scanProgress');
+    const resultDiv = document.getElementById('scanResult');
+    
+    // Показать результаты
+    resultsDiv.style.display = 'block';
+    progressDiv.style.display = 'block';
+    resultDiv.style.display = 'none';
+    
+    // Показать загрузку
+    SecurityCheck.showButtonLoading(scanBtn, 'Scannen...');
+    
+    try {
+        // Запустить сканирование
+        const startResponse = await SecurityCheckAPI.startWebScan(url);
+        const scanId = startResponse.scan_id;
+        
+        // Обновить прогресс
+        let progress = 0;
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        const stages = [
+            'Проверка SSL сертификата...',
+            'Анализ заголовков безопасности...',
+            'Сканирование HTML...',
+            'Проверка cookies...',
+            'Поиск уязвимостей...',
+            'Генерация отчета...'
+        ];
+        
+        const progressInterval = setInterval(() => {
+            progress += 15;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            progressText.textContent = stages[Math.floor(progress / 15) % stages.length];
+        }, 1000);
+        
+        // Дождаться завершения
+        const result = await SecurityCheckAPI.pollStatus(
+            SecurityCheckAPI.getScanStatus,
+            scanId
+        );
+        
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressBar.textContent = '100%';
+        progressText.textContent = 'Abgeschlossen!';
+        
+        // Получить полные результаты
+        const fullResponse = await SecurityCheckAPI.getWebScan(scanId);
+        
+        // Отобразить результаты
+        displayResults(fullResponse.scan);
+        
+        // Показать результаты
+        setTimeout(() => {
+            progressDiv.style.display = 'none';
+            resultDiv.style.display = 'block';
+        }, 500);
+        
+    } catch (error) {
+        console.error('Scan error:', error);
+        SecurityCheck.showNotification('Fehler: ' + error.message, 'danger');
+    } finally {
+        SecurityCheck.hideButtonLoading(scanBtn);
+    }
+});
+
+function displayResults(data) {
+    // Bewertung
+    document.getElementById('securityScore').textContent = data.security_score;
+    document.getElementById('securityGrade').textContent = SecurityCheckUtils.calculateGrade(data.security_score);
+    document.getElementById('securityGrade').className = 'security-grade ' + 
+        SecurityCheckUtils.getGradeClass(SecurityCheckUtils.calculateGrade(data.security_score));
+    
+    // Баллы по категориям
+    document.getElementById('sslScore').textContent = data.ssl_score || 0;
+    document.getElementById('sslBar').style.width = (data.ssl_score || 0) + '%';
+    
+    document.getElementById('headersScore').textContent = data.headers_score || 0;
+    document.getElementById('headersBar').style.width = (data.headers_score || 0) + '%';
+    
+    document.getElementById('htmlScore').textContent = data.html_score || 0;
+    document.getElementById('htmlBar').style.width = (data.html_score || 0) + '%';
+    
+    // AI объяснение
+    if (data.ai_summary) {
+        document.getElementById('aiSummary').textContent = data.ai_summary;
+        document.getElementById('aiSummaryCard').style.display = 'block';
+    }
+    
+    // Статистика
+    const criticalCount = data.critical_issues || 0;
+    const highCount = data.high_issues || 0;
+    const mediumCount = data.medium_issues || 0;
+    const lowCount = data.low_issues || 0;
+    
+    document.getElementById('criticalCount').textContent = criticalCount;
+    document.getElementById('highCount').textContent = highCount;
+    document.getElementById('mediumCount').textContent = mediumCount;
+    document.getElementById('lowCount').textContent = lowCount;
+    
+    // Показать CTA если есть проблемы
+    if (criticalCount > 0 || highCount > 0 || mediumCount > 0) {
+        document.getElementById('ctaBlock').style.display = 'block';
+    }
+    
+    // Детальные результаты с видео
+    const container = document.getElementById('resultsContainer');
+    container.innerHTML = '';
+    
+    if (data.results && data.results.length > 0) {
+        data.results.forEach((result, index) => {
+            container.innerHTML += createVulnerabilityCard(result, index, data.is_verified || false);
+        });
+    } else {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                <h4>Отлично! Серьезных проблем не обнаружено</h4>
+                <p class="text-muted">Ваш сайт имеет базовую защиту</p>
+            </div>
+        `;
+    }
+}
+
+function createVulnerabilityCard(vuln, index, isVerified) {
+    console.log('Creating vulnerability card:', vuln);
+    console.log('vulnerability_info:', vuln.vulnerability_info);
+    
+    // Определяем цвет по severity
+    const severityColors = {
+        'critical': 'danger',
+        'high': 'warning',
+        'medium': 'info',
+        'low': 'secondary'
+    };
+    
+    const severityLabels = {
+        'critical': 'Критическая',
+        'high': 'Высокая',
+        'medium': 'Средняя',
+        'low': 'Низкая'
+    };
+    
+    const color = severityColors[vuln.severity] || 'secondary';
+    const label = severityLabels[vuln.severity] || vuln.severity;
+    
+    // Получаем данные из vulnerability_info если есть
+    const vulnInfo = vuln.vulnerability_info || {};
+    const hasVideo = vulnInfo.video && vulnInfo.video.youtube_id;
+    const hasExplanation = vulnInfo.explanation;
+    const hasDamageCost = vulnInfo.damage_cost;
+    const hasSolution = vulnInfo.solution;
+    const hasTestPayload = isVerified && vulnInfo.test_payload;
+    
+    let html = `
+        <div class="card mb-3 border-${color}">
+            <div class="card-header bg-${color} bg-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle text-${color}"></i>
+                        ${vulnInfo.name || vuln.title}
+                    </h5>
+                    <span class="badge bg-${color}">${label}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">`;
+    
+    // Видео (если есть)
+    if (hasVideo) {
+        html += `
+                    <div class="col-md-5 mb-3">
+                        <div class="ratio ratio-16x9">
+                            <iframe 
+                                src="https://www.youtube.com/embed/${vulnInfo.video.youtube_id}" 
+                                title="${vulnInfo.video.title_ru || 'Демонстрация уязвимости'}"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fas fa-clock"></i> ${vulnInfo.video.duration || '2-3 мин'}
+                        </small>
+                    </div>`;
+    }
+    
+    html += `
+                    <div class="${hasVideo ? 'col-md-7' : 'col-12'}">`;
+    
+    // Объяснение простым языком
+    if (hasExplanation) {
+        // Парсим markdown-like форматирование
+        const explanationHtml = vulnInfo.explanation
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/• /g, '<li>')
+            .replace(/\n/g, '<br>');
+        
+        html += `
+                        <div class="mb-3">
+                            <div class="vulnerability-explanation">
+                                ${explanationHtml}
+                            </div>
+                        </div>`;
+    } else {
+        // Fallback на базовое описание
+        html += `
+                        <div class="mb-3">
+                            <p>${vuln.description || 'Обнаружена проблема безопасности'}</p>
+                        </div>`;
+    }
+    
+    // Стоимость ущерба
+    if (hasDamageCost && hasDamageCost.min) {
+        html += `
+                        <div class="alert alert-danger mb-3">
+                            <i class="fas fa-euro-sign"></i>
+                            <strong>Возможный ущерб:</strong>
+                            €${hasDamageCost.min.toLocaleString()} - €${hasDamageCost.max.toLocaleString()}
+                        </div>`;
+    }
+    
+    html += `
+                    </div>
+                </div>`;
+    
+    // Решение (как защититься)
+    if (hasSolution) {
+        const solutionHtml = hasSolution
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/• /g, '<li>')
+            .replace(/\n/g, '<br>');
+        
+        html += `
+                <div class="alert alert-success mb-0 mt-3">
+                    <h6><i class="fas fa-shield-alt"></i> Как защититься:</h6>
+                    ${solutionHtml}
+                </div>`;
+    }
+    
+    // Инструкция по тестированию (только для верифицированных)
+    if (hasTestPayload) {
+        html += `
+                <div class="accordion mt-3" id="testAccordion${index}">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#testCollapse${index}">
+                                <i class="fas fa-flask me-2"></i> Проверить самостоятельно (для владельцев)
+                            </button>
+                        </h2>
+                        <div id="testCollapse${index}" class="accordion-collapse collapse" data-bs-parent="#testAccordion${index}">
+                            <div class="accordion-body">
+                                ${vulnInfo.test_instruction.replace(/\n/g, '<br>')}
+                                <div class="mt-3">
+                                    <strong>Тестовый payload:</strong>
+                                    <code class="d-block bg-light p-2 mt-2">${vulnInfo.test_payload}</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+    }
+    
+    html += `
+            </div>
+        </div>`;
+    
+    return html;
+}
+</script>
+
+<style>
+.vulnerability-explanation {
+    line-height: 1.8;
+}
+
+.vulnerability-explanation strong {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 1.05em;
+}
+
+.vulnerability-explanation li {
+    list-style-position: inside;
+    margin-left: 20px;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}

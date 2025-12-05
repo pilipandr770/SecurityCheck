@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Внутренняя ошибка сервера{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 text-center">
+            <div class="error-template">
+                <i class="fas fa-server fa-5x text-danger mb-4"></i>
+                <h1 class="display-1">500</h1>
+                <h2>Внутренняя ошибка сервера</h2>
+                <div class="error-details mb-4">
+                    <p class="lead">Упс! Etwas ist schief gelaufen на нашей стороне.</p>
+                    <p class="text-muted">Мы уже работаем над решением проблемы. Попробуйте позже.</p>
+                </div>
+                <div class="error-actions">
+                    <a href="{{ url_for('dashboard.index') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home"></i> Zur Startseite
+                    </a>
+                    <a href="javascript:location.reload()" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-redo"></i> Обновить
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

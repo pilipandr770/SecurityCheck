@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сетевое сканирование - SecurityCheck</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
+                <i class="fas fa-shield-alt"></i> SecurityCheck
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.index') }}">
+                            <i class="fas fa-home"></i> Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Выход
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h1 class="mb-4">
+                        <i class="fas fa-network-wired text-primary"></i> Сетевое сканирование
+                    </h1>
+                    <p class="text-muted mb-4">
+                        Сканирование открытых портов, обнаружение сервисов и поиск уязвимостей
+                    </p>
+
+                    <!-- Форма сканирования -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-search"></i> Запустить сканирование</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="scanForm">
+                                <div class="mb-3">
+                                    <label for="target" class="form-label">
+                                        Ziel сканирования (IP-Adresse или домен)
+                                    </label>
+                                    <input type="text" class="form-control" id="target" 
+                                           placeholder="например: 192.168.1.1 или example.com" required>
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle"></i> 
+                                        Укажите IP-Adresse или доменное имя для сканирования
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="scanPorts" checked>
+                                        <label class="form-check-label" for="scanPorts">
+                                            Сканировать порты
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="scanServices" checked>
+                                        <label class="form-check-label" for="scanServices">
+                                            Определять версии сервисов
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="customPorts" class="form-label">
+                                        Порты для сканирования (необязательно)
+                                    </label>
+                                    <input type="text" class="form-control" id="customPorts" 
+                                           placeholder="например: 80,443,3306 или оставьте пустым для стандартных">
+                                    <div class="form-text">
+                                        Укажите порты через запятую или оставьте пустым для сканирования стандартных портов
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg w-100" id="scanButton">
+                                    <i class="fas fa-search"></i> Scan starten
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Результаты -->
+                    <div id="resultsContainer" class="d-none">
+                        <!-- Status сканирования -->
+                        <div id="scanStatus" class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border text-primary me-3" role="status">
+                                    <span class="visually-hidden">Scannen...</span>
+                                </div>
+                                <div>
+                                    <strong>Сканирование в процессе...</strong>
+                                    <div class="small" id="statusText">Подготовка к сканированию</div>
+                                    <div class="progress mt-2" style="height: 5px;">
+                                        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Результаты сканирования -->
+                        <div id="scanResults" class="d-none">
+                            <div class="card shadow mb-4">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Результаты сканирования</h5>
+                                    <span id="threatBadge"></span>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Общая информация -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <i class="fas fa-bullseye text-primary"></i>
+                                                <strong>Ziel:</strong>
+                                                <span id="scanTarget"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <i class="fas fa-server text-info"></i>
+                                                <strong>IP-Adresse:</strong>
+                                                <span id="resolvedIp"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mt-3">
+                                            <div class="info-item">
+                                                <i class="fas fa-desktop text-success"></i>
+                                                <strong>ОС:</strong>
+                                                <span id="osDetection"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mt-3">
+                                            <div class="info-item">
+                                                <i class="fas fa-clock text-warning"></i>
+                                                <strong>Время сканирования:</strong>
+                                                <span id="scanDuration"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <hr>
+
+                                    <!-- Offene Ports -->
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-door-open text-success"></i> Offene Ports
+                                        (<span id="openPortsCount">0</span>)
+                                    </h6>
+                                    <div id="openPortsList" class="mb-4"></div>
+
+                                    <hr>
+
+                                    <!-- Уязвимости -->
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-exclamation-triangle text-danger"></i> Обнаруженные уязвимости
+                                        (<span id="vulnerabilitiesCount">0</span>)
+                                    </h6>
+                                    <div id="vulnerabilitiesList" class="mb-4"></div>
+
+                                    <hr>
+
+                                    <!-- AI объяснение -->
+                                    <div id="aiExplanation" class="alert alert-primary">
+                                        <h6><i class="fas fa-robot"></i> AI Анализ</h6>
+                                        <p id="aiExplanationText"></p>
+                                    </div>
+
+                                    <!-- AI рекомендации -->
+                                    <div id="aiRecommendation" class="alert alert-info">
+                                        <h6><i class="fas fa-lightbulb"></i> Рекомендации</h6>
+                                        <p id="aiRecommendationText"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- История сканирований -->
+                    <div class="card shadow">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-history"></i> История сканирований</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="historyList">
+                                <p class="text-muted">Загрузка истории...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+        // API для работы с сетевым сканированием
+        const NetworkScanAPI = {
+            startScan: (data) => fetch('/api/network-scans/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            }).then(r => r.json()),
+            
+            getStatus: (scanId) => fetch(`/api/network-scans/${scanId}/status`).then(r => r.json()),
+            
+            getResults: (scanId) => fetch(`/api/network-scans/${scanId}`).then(r => r.json()),
+            
+            getHistory: () => fetch('/api/network-scans/history').then(r => r.json())
+        };
+
+        let currentScanId = null;
+        let statusCheckInterval = null;
+
+        // In Bearbeitung формы
+        document.getElementById('scanForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const target = document.getElementById('target').value.trim();
+            const scanPorts = document.getElementById('scanPorts').checked;
+            const scanServices = document.getElementById('scanServices').checked;
+            const customPortsStr = document.getElementById('customPorts').value.trim();
+            
+            let customPorts = null;
+            if (customPortsStr) {
+                customPorts = customPortsStr.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+            }
+            
+            const scanButton = document.getElementById('scanButton');
+            scanButton.disabled = true;
+            scanButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Запуск...';
+            
+            try {
+                const response = await NetworkScanAPI.startScan({
+                    target,
+                    scan_ports: scanPorts,
+                    scan_services: scanServices,
+                    custom_ports: customPorts
+                });
+                
+                if (response.success) {
+                    currentScanId = response.scan_id;
+                    showScanProgress();
+                    startStatusChecking();
+                } else {
+                    alert('Fehler: ' + response.error);
+                }
+            } catch (error) {
+                alert('Fehler beim Starten des Scans: ' + error.message);
+            } finally {
+                scanButton.disabled = false;
+                scanButton.innerHTML = '<i class="fas fa-search"></i> Scan starten';
+            }
+        });
+
+        function showScanProgress() {
+            document.getElementById('resultsContainer').classList.remove('d-none');
+            document.getElementById('scanStatus').classList.remove('d-none');
+            document.getElementById('scanResults').classList.add('d-none');
+        }
+
+        function startStatusChecking() {
+            statusCheckInterval = setInterval(async () => {
+                try {
+                    const response = await NetworkScanAPI.getStatus(currentScanId);
+                    
+                    if (response.success) {
+                        updateProgress(response.progress || 0);
+                        
+                        if (response.status === 'completed') {
+                            clearInterval(statusCheckInterval);
+                            loadResults();
+                        } else if (response.status === 'failed') {
+                            clearInterval(statusCheckInterval);
+                            document.getElementById('statusText').textContent = 'Сканирование завершилось с ошибкой';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Status check error:', error);
+                }
+            }, 2000);
+        }
+
+        function updateProgress(progress) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            document.getElementById('statusText').textContent = `Выполнено: ${progress}%`;
+        }
+
+        async function loadResults() {
+            try {
+                const response = await NetworkScanAPI.getResults(currentScanId);
+                
+                if (response.success) {
+                    displayResults(response.scan);
+                }
+            } catch (error) {
+                console.error('Results load error:', error);
+            }
+        }
+
+        function displayResults(scan) {
+            document.getElementById('scanStatus').classList.add('d-none');
+            document.getElementById('scanResults').classList.remove('d-none');
+            
+            // Общая информация
+            document.getElementById('scanTarget').textContent = scan.target;
+            document.getElementById('resolvedIp').textContent = scan.resolved_ip || 'Не разрешён';
+            document.getElementById('osDetection').textContent = scan.os_detection || 'Не определена';
+            document.getElementById('scanDuration').textContent = scan.scan_duration ? `${scan.scan_duration} сек` : 'Н/Д';
+            
+            // Уровень угрозы
+            const threatBadge = document.getElementById('threatBadge');
+            if (scan.threat_level === 'safe') {
+                threatBadge.innerHTML = '<span class="badge bg-success">Безопасно</span>';
+            } else if (scan.threat_level === 'warning') {
+                threatBadge.innerHTML = '<span class="badge bg-warning">Предупреждение</span>';
+            } else {
+                threatBadge.innerHTML = '<span class="badge bg-danger">Опасно</span>';
+            }
+            
+            // Offene Ports
+            document.getElementById('openPortsCount').textContent = scan.open_ports.length;
+            const portsHtml = scan.open_ports.map(p => `
+                <div class="alert alert-secondary py-2">
+                    <strong>Порт ${p.port}</strong> - ${p.service}
+                    ${p.banner ? `<br><small class="text-muted">${SecurityCheckUtils.escapeHtml(p.banner)}</small>` : ''}
+                </div>
+            `).join('');
+            document.getElementById('openPortsList').innerHTML = portsHtml || '<p class="text-muted">Открытых портов не найдено</p>';
+            
+            // Уязвимости
+            document.getElementById('vulnerabilitiesCount').textContent = scan.vulnerabilities.length;
+            const vulnHtml = scan.vulnerabilities.map(v => {
+                let badgeClass = 'secondary';
+                if (v.severity === 'critical') badgeClass = 'danger';
+                else if (v.severity === 'high') badgeClass = 'warning';
+                else if (v.severity === 'medium') badgeClass = 'info';
+                
+                return `
+                    <div class="alert alert-${badgeClass} py-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>${v.service} (Порт ${v.port})</strong>
+                            <span class="badge bg-${badgeClass}">${v.severity.toUpperCase()}</span>
+                        </div>
+                        <p class="mb-1">${v.description}</p>
+                        <small><i class="fas fa-check"></i> ${v.recommendation}</small>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('vulnerabilitiesList').innerHTML = vulnHtml || '<p class="text-success">Уязвимостей не обнаружено</p>';
+            
+            // AI объяснение
+            if (scan.ai_explanation) {
+                document.getElementById('aiExplanationText').textContent = scan.ai_explanation;
+            }
+            
+            if (scan.ai_recommendation) {
+                document.getElementById('aiRecommendationText').innerHTML = scan.ai_recommendation.replace(/\n/g, '<br>');
+            }
+            
+            // Обновляем историю
+            loadHistory();
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await NetworkScanAPI.getHistory();
+                
+                if (response.success && response.scans.length > 0) {
+                    const historyHtml = response.scans.map(scan => {
+                        let threatClass = 'success';
+                        if (scan.threat_level === 'warning') threatClass = 'warning';
+                        else if (scan.threat_level === 'danger') threatClass = 'danger';
+                        
+                        return `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>${scan.target}</strong>
+                                        <span class="badge bg-${threatClass} ms-2">${scan.threat_level}</span>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> ${new Date(scan.created_at).toLocaleString('ru-RU')}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewScan(${scan.id})">
+                                        <i class="fas fa-eye"></i> Ansehen
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    document.getElementById('historyList').innerHTML = `<div class="list-group">${historyHtml}</div>`;
+                } else {
+                    document.getElementById('historyList').innerHTML = '<p class="text-muted">История пуста</p>';
+                }
+            } catch (error) {
+                console.error('History load error:', error);
+            }
+        }
+
+        async function viewScan(scanId) {
+            currentScanId = scanId;
+            const response = await NetworkScanAPI.getResults(scanId);
+            if (response.success) {
+                displayResults(response.scan);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Загружаем историю при загрузке страницы
+        window.addEventListener('load', loadHistory);
+    </script>
+</body>
+</html>

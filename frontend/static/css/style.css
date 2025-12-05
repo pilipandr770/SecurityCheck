@@ -1,0 +1,316 @@
+/* SecurityCheck - Основные стили */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --light-bg: #f8f9fa;
+    --dark-bg: #212529;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+}
+
+/* Навигация */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    transition: color 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--info-color) !important;
+}
+
+/* Карточки */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.hover-shadow {
+    cursor: pointer;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 2px solid var(--light-bg);
+    font-weight: 600;
+}
+
+/* Кнопки */
+.btn {
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0b5ed7;
+}
+
+/* Формы */
+.form-control, .form-select {
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    padding: 10px 15px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group-text {
+    background-color: white;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: var(--primary-color);
+}
+
+/* Бейджи */
+.badge {
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+/* Алерты */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+/* Прогресс бары */
+.progress {
+    border-radius: 10px;
+    height: 25px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Таблицы */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    color: var(--dark-bg);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+    cursor: pointer;
+}
+
+/* Футер */
+footer {
+    margin-top: auto;
+}
+
+footer a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--info-color) !important;
+}
+
+/* Специальные классы */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+/* Статистические карточки */
+.card.bg-primary,
+.card.bg-success,
+.card.bg-warning,
+.card.bg-info,
+.card.bg-danger {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Анимация загрузки */
+.spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15rem;
+}
+
+/* Результаты сканирования */
+.scan-result-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.scan-result-item.critical {
+    border-left-color: var(--danger-color);
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.scan-result-item.high {
+    border-left-color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.05);
+}
+
+.scan-result-item.medium {
+    border-left-color: var(--warning-color);
+    background-color: rgba(255, 193, 7, 0.05);
+}
+
+.scan-result-item.low {
+    border-left-color: var(--info-color);
+    background-color: rgba(13, 202, 240, 0.05);
+}
+
+.scan-result-item.info {
+    border-left-color: var(--secondary-color);
+    background-color: rgba(108, 117, 125, 0.05);
+}
+
+/* Оценка безопасности */
+.security-score {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.security-grade {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    border-radius: 50%;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: white;
+}
+
+.security-grade.grade-a {
+    background-color: var(--success-color);
+}
+
+.security-grade.grade-b {
+    background-color: #20c997;
+}
+
+.security-grade.grade-c {
+    background-color: var(--warning-color);
+}
+
+.security-grade.grade-d {
+    background-color: #fd7e14;
+}
+
+.security-grade.grade-f {
+    background-color: var(--danger-color);
+}
+
+/* Drag & Drop зона */
+.dropzone {
+    border: 3px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    background-color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dropzone:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.dropzone.dragover {
+    border-color: var(--success-color);
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+/* Модальные окна */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 2px solid var(--light-bg);
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #5a6268;
+}
+
+/* Утилиты */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.user-select-none {
+    user-select: none;
+}
