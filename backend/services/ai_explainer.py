@@ -26,13 +26,14 @@ class AIExplainer:
         else:
             self.api_key = api_key or os.environ.get('ANTHROPIC_API_KEY')
     
-    def generate_scan_summary(self, results: List[Dict], domain: str) -> Dict:
+    def generate_scan_summary(self, results: List[Dict], domain: str, language: str = 'de') -> Dict:
         """
         Сгенерировать резюме сканирования
         
         Args:
             results: Список результатов сканирования
             domain: Домен
+            language: Язык ('de' или 'ru')
             
         Returns:
             dict: Резюме и рекомендации
@@ -45,7 +46,18 @@ class AIExplainer:
         high = [r for r in results if r.get('severity') == 'high']
         medium = [r for r in results if r.get('severity') == 'medium']
         
-        prompt = f"""Ты - эксперт по кибербезопасности. Объясни результаты сканирования сайта {domain} простым языком для владельца бизнеса (не технического специалиста).
+        if language == 'de':
+            prompt = f"""Du bist ein Cybersicherheitsexperte. Erkläre die Scan-Ergebnisse der Website {domain} in einfacher Sprache für einen Geschäftsinhaber (keine technische Person).
+
+Gefundene Probleme:
+- Kritisch: {len(critical)}
+- Hoch: {len(high)}
+- Mittel: {len(medium)}
+
+Problemdetails:
+"""
+        else:
+            prompt = f"""Ты - эксперт по кибербезопасности. Объясни результаты сканирования сайта {domain} простым языком для владельца бизнеса (не технического специалиста).
 
 Найдено проблем:
 - Критических: {len(critical)}
@@ -60,11 +72,14 @@ class AIExplainer:
         for issue in top_issues:
             prompt += f"\n- {issue.get('title')}: {issue.get('description', '')}"
         
-        prompt += "\n\nНапиши краткое резюме (2-3 предложения) на русском языке о состоянии безопасности сайта и дай 3-5 конкретных рекомендаций что нужно исправить в первую очередь."
+        if language == 'de':
+            prompt += "\n\nSchreibe eine kurze Zusammenfassung (2-3 Sätze) auf Deutsch über den Sicherheitszustand der Website und gib 3-5 konkrete Empfehlungen, was zuerst behoben werden sollte."
+        else:
+            prompt += "\n\nНапиши краткое резюме (2-3 предложения) на русском языке о состоянии безопасности сайта и дай 3-5 конкретных рекомендаций что нужно исправить в первую очередь."
         
         try:
             if self.provider == 'openai':
-                response = self._call_openai(prompt)
+                response = self._call_openai(prompt, language)
             else:
                 response = self._call_anthropic(prompt)
             
@@ -113,7 +128,21 @@ class AIExplainer:
                 'video': None
             }
         
-        prompt = f"""Объясни простым языком владельцу малого бизнеса (не технарю) что такое "{vuln_type}".
+        if language == 'de':
+            prompt = f"""Erkläre einem Kleinunternehmer (kein Techniker) in einfacher Sprache, was "{vuln_type}" ist.
+
+Details: {details}
+
+Gefahrenstufe: {severity}
+
+Schreibe auf Deutsch:
+1. Was ist das? (1-2 Sätze)
+2. Warum ist es gefährlich für das Geschäft? (1-2 Sätze)
+3. Wie kann man es beheben? (konkrete Schritte)
+
+Verwende einfache Wörter, vermeide technischen Jargon."""
+        else:
+            prompt = f"""Объясни простым языком владельцу малого бизнеса (не технарю) что такое "{vuln_type}".
 
 Детали: {details}
 
@@ -128,7 +157,7 @@ class AIExplainer:
         
         try:
             if self.provider == 'openai':
-                explanation_text = self._call_openai(prompt)
+                explanation_text = self._call_openai(prompt, language)
             else:
                 explanation_text = self._call_anthropic(prompt)
             
@@ -150,13 +179,14 @@ class AIExplainer:
                 'video': None
             }
     
-    def explain_file_threat(self, filename: str, analysis_result: Dict) -> Dict:
+    def explain_file_threat(self, filename: str, analysis_result: Dict, language: str = 'de') -> Dict:
         """
         Объяснить угрозу в файле
         
         Args:
             filename: Имя файла
             analysis_result: Результаты анализа
+            language: Язык ('de' или 'ru')
             
         Returns:
             dict: Объяснение и рекомендация
@@ -182,7 +212,21 @@ class AIExplainer:
                     'recommendation': 'Проверки не выявили очевидных угроз, но всегда будьте осторожны с незнакомыми файлами.'
                 }
         
-        prompt = f"""Файл "{filename}" был проанализирован на вирусы и угрозы.
+        if language == 'de':
+            prompt = f"""Die Datei "{filename}" wurde auf Viren und Bedrohungen analysiert.
+
+Ergebnisse:
+- Gefährlich: {'Ja' if is_dangerous else 'Nein'}
+- Verdächtig: {'Ja' if is_suspicious else 'Nein'}
+
+Gefundene Probleme:
+{chr(10).join([f'- {issue}' for issue in issues])}
+
+Erkläre dem Geschäftsinhaber auf einfachem Deutsch:
+1. Ist diese Datei sicher? (2-3 Sätze)
+2. Sollte man sie öffnen? (klare Empfehlung)"""
+        else:
+            prompt = f"""Файл "{filename}" был проанализирован на вирусы и угрозы.
 
 Результаты:
 - Опасный: {'Да' if is_dangerous else 'Нет'}
@@ -197,7 +241,7 @@ class AIExplainer:
         
         try:
             if self.provider == 'openai':
-                response = self._call_openai(prompt)
+                response = self._call_openai(prompt, language)
             else:
                 response = self._call_anthropic(prompt)
             
@@ -216,13 +260,14 @@ class AIExplainer:
                 'recommendation': 'Не открывайте файл.' if is_dangerous else 'Будьте осторожны.' if is_suspicious else 'Файл выглядит безопасным.'
             }
     
-    def explain_link_danger(self, url: str, check_result: Dict) -> str:
+    def explain_link_danger(self, url: str, check_result: Dict, language: str = 'de') -> str:
         """
         Объяснить опасность ссылки
         
         Args:
             url: URL
             check_result: Результаты проверки
+            language: Язык ('de' или 'ru')
             
         Returns:
             str: Объяснение
@@ -239,7 +284,22 @@ class AIExplainer:
             else:
                 return f'Ссылка {url} выглядит безопасной.'
         
-        prompt = f"""Проанализирована ссылка: {url}
+        if language == 'de':
+            prompt = f"""Der Link wurde analysiert: {url}
+
+Überprüfungsergebnisse:
+- Gefährlich: {'Ja' if is_dangerous else 'Nein'}
+- Verdächtig: {'Ja' if is_suspicious else 'Nein'}
+
+Gründe:
+{chr(10).join([f'- {reason}' for reason in reasons])}
+
+Erkläre dem Geschäftsinhaber auf einfachem Deutsch:
+1. Ist dieser Link sicher? (2-3 Sätze)
+2. Kann man darauf klicken? (klare Antwort)
+3. Welche Risiken gibt es beim Klicken?"""
+        else:
+            prompt = f"""Проанализирована ссылка: {url}
 
 Результаты проверки:
 - Опасная: {'Да' if is_dangerous else 'Нет'}
@@ -255,20 +315,21 @@ class AIExplainer:
         
         try:
             if self.provider == 'openai':
-                return self._call_openai(prompt)
+                return self._call_openai(prompt, language)
             else:
                 return self._call_anthropic(prompt)
         except Exception:
             status = 'опасна' if is_dangerous else 'подозрительна' if is_suspicious else 'безопасна'
             return f'Ссылка {status}. {" ".join(reasons[:2])}'
     
-    def generate_domain_summary(self, domain: str, intel: Dict) -> str:
+    def generate_domain_summary(self, domain: str, intel: Dict, language: str = 'de') -> str:
         """
         Сгенерировать резюме по домену
         
         Args:
             domain: Домен
             intel: Информация о домене
+            language: Язык ('de' или 'ru')
             
         Returns:
             str: Резюме
@@ -280,7 +341,19 @@ class AIExplainer:
         if not self.api_key:
             return f'Домен {domain} зарегистрирован {age_days} дней назад. Репутация: {reputation}/100. Email безопасность: {email_sec.get("score", 0)}/100.'
         
-        prompt = f"""Проанализирован домен: {domain}
+        if language == 'de':
+            prompt = f"""Die Domain wurde analysiert: {domain}
+
+Informationen:
+- Alter: {age_days} Tage
+- Reputation: {reputation}/100
+- E-Mail-Sicherheit (SPF/DKIM/DMARC): {email_sec.get('score', 0)}/100
+- SPF: {'Ja' if email_sec.get('has_spf') else 'Nein'}
+- DMARC: {'Ja' if email_sec.get('has_dmarc') else 'Nein'}
+
+Schreibe eine kurze Zusammenfassung (3-4 Sätze) auf Deutsch über die Zuverlässigkeit dieser Domain für einen Geschäftsinhaber."""
+        else:
+            prompt = f"""Проанализирован домен: {domain}
 
 Информация:
 - Возраст: {age_days} дней
@@ -293,7 +366,7 @@ class AIExplainer:
         
         try:
             if self.provider == 'openai':
-                return self._call_openai(prompt)
+                return self._call_openai(prompt, language)
             else:
                 return self._call_anthropic(prompt)
         except Exception:
@@ -373,16 +446,18 @@ class AIExplainer:
                 'recommendation': 'Рекомендуется провести аудит безопасности.'
             }
     
-    def _call_openai(self, prompt: str) -> str:
+    def _call_openai(self, prompt: str, language: str = 'de') -> str:
         """Вызов OpenAI API"""
         from openai import OpenAI
         
         client = OpenAI(api_key=self.api_key)
         
+        system_message = "Du bist ein Cybersicherheitsexperte, der komplexe Dinge in einfacher Sprache für Geschäftsinhaber erklärt." if language == 'de' else "Ты - эксперт по кибербезопасности, который объясняет сложные вещи простым языком для владельцев бизнеса."
+        
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "Ты - эксперт по кибербезопасности, который объясняет сложные вещи простым языком для владельцев бизнеса."},
+                {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=500,
