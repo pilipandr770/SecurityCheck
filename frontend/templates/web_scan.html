@@ -302,12 +302,12 @@ console.log('Web scan page loaded');
 let currentScanUrl = '';
 
 function showContactForm() {
-    // URL автоматически заполнить
+    // URL automatisch ausfüllen
     const websiteInput = document.getElementById('contactWebsite');
     if (websiteInput && currentScanUrl) {
         websiteInput.value = currentScanUrl;
     }
-    // Показываем модальное окно
+    // Modal anzeigen
     const modalElement = document.getElementById('contactModal');
     if (modalElement) {
         const modal = new bootstrap.Modal(modalElement);
@@ -325,10 +325,10 @@ async function submitContactForm() {
     const formData = new FormData(form);
     
     try {
-        // Здесь будет API вызов для отправки заявки
+        // Hier erfolgt der API-Aufruf zum Senden der Anfrage
         SecurityCheck.showNotification('Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.', 'success');
         
-        // Закрываем модальное окно
+        // Modal schließen
         const modalElement = document.getElementById('contactModal');
         if (modalElement) {
             const modal = bootstrap.Modal.getInstance(modalElement);
@@ -353,20 +353,20 @@ document.getElementById('scanForm').addEventListener('submit', async (e) => {
     const progressDiv = document.getElementById('scanProgress');
     const resultDiv = document.getElementById('scanResult');
     
-    // Показать результаты
+    // Ergebnisse anzeigen
     resultsDiv.style.display = 'block';
     progressDiv.style.display = 'block';
     resultDiv.style.display = 'none';
     
-    // Показать загрузку
+    // Laden anzeigen
     SecurityCheck.showButtonLoading(scanBtn, 'Scannen...');
     
     try {
-        // Запустить сканирование
+        // Scan starten
         const startResponse = await SecurityCheckAPI.startWebScan(url);
         const scanId = startResponse.scan_id;
         
-        // Обновить прогресс
+        // Fortschritt aktualisieren
         let progress = 0;
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
@@ -388,7 +388,7 @@ document.getElementById('scanForm').addEventListener('submit', async (e) => {
             progressText.textContent = stages[Math.floor(progress / 15) % stages.length];
         }, 1000);
         
-        // Дождаться завершения
+        // Auf Fertigstellung warten
         const result = await SecurityCheckAPI.pollStatus(
             SecurityCheckAPI.getScanStatus,
             scanId
@@ -399,13 +399,13 @@ document.getElementById('scanForm').addEventListener('submit', async (e) => {
         progressBar.textContent = '100%';
         progressText.textContent = 'Abgeschlossen!';
         
-        // Получить полные результаты
+        // Vollständige Ergebnisse abrufen
         const fullResponse = await SecurityCheckAPI.getWebScan(scanId);
         
-        // Отобразить результаты
+        // Ergebnisse anzeigen
         displayResults(fullResponse.scan);
         
-        // Показать результаты
+        // Ergebnisse anzeigen
         setTimeout(() => {
             progressDiv.style.display = 'none';
             resultDiv.style.display = 'block';
@@ -426,7 +426,7 @@ function displayResults(data) {
     document.getElementById('securityGrade').className = 'security-grade ' + 
         SecurityCheckUtils.getGradeClass(SecurityCheckUtils.calculateGrade(data.security_score));
     
-    // Баллы по категориям
+    // Punkte nach Kategorien
     document.getElementById('sslScore').textContent = data.ssl_score || 0;
     document.getElementById('sslBar').style.width = (data.ssl_score || 0) + '%';
     
@@ -436,13 +436,13 @@ function displayResults(data) {
     document.getElementById('htmlScore').textContent = data.html_score || 0;
     document.getElementById('htmlBar').style.width = (data.html_score || 0) + '%';
     
-    // AI объяснение
+    // KI-Analyse
     if (data.ai_summary) {
         document.getElementById('aiSummary').textContent = data.ai_summary;
         document.getElementById('aiSummaryCard').style.display = 'block';
     }
     
-    // Статистика
+    // Statistiken
     const criticalCount = data.critical_issues || 0;
     const highCount = data.high_issues || 0;
     const mediumCount = data.medium_issues || 0;
@@ -453,12 +453,12 @@ function displayResults(data) {
     document.getElementById('mediumCount').textContent = mediumCount;
     document.getElementById('lowCount').textContent = lowCount;
     
-    // Показать CTA если есть проблемы
+    // CTA anzeigen, wenn Probleme vorhanden
     if (criticalCount > 0 || highCount > 0 || mediumCount > 0) {
         document.getElementById('ctaBlock').style.display = 'block';
     }
     
-    // Детальные результаты с видео
+    // Detaillierte Ergebnisse mit Video
     const container = document.getElementById('resultsContainer');
     container.innerHTML = '';
     
@@ -470,8 +470,8 @@ function displayResults(data) {
         container.innerHTML = `
             <div class="text-center py-5">
                 <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
-                <h4>Отлично! Серьезных проблем не обнаружено</h4>
-                <p class="text-muted">Ваш сайт имеет базовую защиту</p>
+                <h4>Ausgezeichnet! Keine ernsthaften Probleme gefunden</h4>
+                <p class="text-muted">Ihre Website hat grundlegenden Schutz</p>
             </div>
         `;
     }
@@ -481,7 +481,7 @@ function createVulnerabilityCard(vuln, index, isVerified) {
     console.log('Creating vulnerability card:', vuln);
     console.log('vulnerability_info:', vuln.vulnerability_info);
     
-    // Определяем цвет по severity
+    // Farbe nach Severity bestimmen
     const severityColors = {
         'critical': 'danger',
         'high': 'warning',
@@ -490,16 +490,16 @@ function createVulnerabilityCard(vuln, index, isVerified) {
     };
     
     const severityLabels = {
-        'critical': 'Критическая',
-        'high': 'Высокая',
-        'medium': 'Средняя',
-        'low': 'Низкая'
+        'critical': 'Kritisch',
+        'high': 'Hoch',
+        'medium': 'Mittel',
+        'low': 'Niedrig'
     };
     
     const color = severityColors[vuln.severity] || 'secondary';
     const label = severityLabels[vuln.severity] || vuln.severity;
     
-    // Получаем данные из vulnerability_info если есть
+    // Daten aus vulnerability_info abrufen, falls vorhanden
     const vulnInfo = vuln.vulnerability_info || {};
     const hasVideo = vulnInfo.video && vulnInfo.video.youtube_id;
     const hasExplanation = vulnInfo.explanation;
@@ -519,9 +519,9 @@ function createVulnerabilityCard(vuln, index, isVerified) {
                 </div>
             </div>
             <div class="card-body">
-                <div class="row">`;
+                <div class="row">`;  
     
-    // Видео (если есть)
+    // Video (falls vorhanden)
     if (hasVideo) {
         html += `
                     <div class="col-md-5 mb-3">

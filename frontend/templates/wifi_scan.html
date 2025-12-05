@@ -198,7 +198,7 @@ document.getElementById('startScanBtn').addEventListener('click', async () => {
         document.getElementById('resultsSection').style.display = 'none';
         document.getElementById('startScanBtn').disabled = true;
         
-        // Проверяем статус каждые 2 секунды
+        // Status alle 2 Sekunden prüfen
         statusCheckInterval = setInterval(checkStatus, 2000);
         
     } catch (error) {
@@ -244,7 +244,7 @@ async function showResults() {
         
         const scan = result.scan;
         
-        // Общая информация
+        // Allgemeine Informationen
         const networkInfo = document.getElementById('networkInfo');
         const yourIP = document.getElementById('yourIP');
         const totalDevices = document.getElementById('totalDevices');
@@ -259,7 +259,7 @@ async function showResults() {
             totalDevices.textContent = scan.total_ports_scanned || 0;
         }
         
-        // Список устройств
+        // Geräteliste
         const devicesList = document.getElementById('devicesList');
         devicesList.innerHTML = '';
         
@@ -285,8 +285,8 @@ async function showResults() {
                                 </div>
                                 <div class="col-md-2 text-end">
                                     ${device.open_ports && device.open_ports.length > 0 ? 
-                                        `<span class="badge bg-info">${device.open_ports.length} портов</span>` : 
-                                        '<span class="badge bg-secondary">Закрыто</span>'
+                                        `<span class="badge bg-info">${device.open_ports.length} Ports</span>` : 
+                                        '<span class="badge bg-secondary">Geschlossen</span>'
                                     }
                                 </div>
                             </div>
@@ -296,10 +296,10 @@ async function showResults() {
                 devicesList.innerHTML += deviceCard;
             });
         } else {
-            devicesList.innerHTML = '<p class="text-muted">Устройства не найдены</p>';
+            devicesList.innerHTML = '<p class="text-muted">Keine Geräte gefunden</p>';
         }
         
-        // AI объяснение
+        // KI-Analyse
         const aiExplanationText = document.getElementById('aiExplanationText');
         const aiExplanation = document.getElementById('aiExplanation');
         const aiRecommendationText = document.getElementById('aiRecommendationText');
@@ -315,12 +315,12 @@ async function showResults() {
             aiRecommendation.style.display = 'block';
         }
         
-        // Показываем результаты
+        // Ergebnisse anzeigen
         document.getElementById('progressSection').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'block';
         document.getElementById('startScanBtn').disabled = false;
         
-        // Обновляем историю
+        // Historie aktualisieren
         loadHistory();
         
     } catch (error) {
@@ -339,26 +339,26 @@ async function loadHistory() {
         const result = await WiFiScanAPI.getHistory();
         
         if (!result.success || !result.scans || result.scans.length === 0) {
-            document.getElementById('historyList').innerHTML = '<p class="text-muted">История пуста</p>';
+            document.getElementById('historyList').innerHTML = '<p class="text-muted">Historie ist leer</p>';
             return;
         }
         
         let html = '<div class="list-group">';
         result.scans.forEach(scan => {
-            const date = new Date(scan.created_at).toLocaleString('ru-RU');
+            const date = new Date(scan.created_at).toLocaleString('de-DE');
             const statusBadge = scan.status === 'completed' ? 
                 '<span class="badge bg-success">Abgeschlossen</span>' : 
-                '<span class="badge bg-warning">В процессе</span>';
+                '<span class="badge bg-warning">In Bearbeitung</span>';
             
             html += `
                 <a href="#" class="list-group-item list-group-item-action" onclick="viewScan(${scan.id}); return false;">
                     <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">Сканирование #${scan.id}</h6>
+                        <h6 class="mb-1">Scan #${scan.id}</h6>
                         ${statusBadge}
                     </div>
                     <p class="mb-1"><small>
                         <i class="far fa-clock"></i> ${date} • 
-                        <i class="fas fa-devices"></i> ${scan.total_ports_scanned || 0} устройств
+                        <i class="fas fa-devices"></i> ${scan.total_ports_scanned || 0} Geräte
                     </small></p>
                 </a>
             `;
