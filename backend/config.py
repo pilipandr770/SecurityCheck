@@ -156,15 +156,14 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     
     # Render.com предоставляет DATABASE_URL
-    @property
-    def SQLALCHEMY_DATABASE_URI(self):
-        database_url = os.environ.get('DATABASE_URL')
-        if database_url:
-            # Render использует postgres://, но SQLAlchemy требует postgresql://
-            if database_url.startswith('postgres://'):
-                database_url = database_url.replace('postgres://', 'postgresql://', 1)
-            return database_url
-        return super().SQLALCHEMY_DATABASE_URI
+    # Переопределяем на уровне класса, не используя @property
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        # Render использует postgres://, но SQLAlchemy требует postgresql://
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        SQLALCHEMY_DATABASE_URI = database_url
+    # Если DATABASE_URL не установлен, используем значение из Config
 
 
 class TestingConfig(Config):
