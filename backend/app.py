@@ -299,3 +299,7 @@ def register_health_check(app):
             'status': status,
             'database': health
         }), status_code
+
+
+# Создаём экземпляр приложения для Gunicorn
+app = create_app()
