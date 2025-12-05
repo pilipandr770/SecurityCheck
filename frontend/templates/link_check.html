@@ -8,19 +8,19 @@
         <div class="card shadow-lg">
             <div class="card-header bg-success text-white">
                 <h3 class="mb-0">
-                    <i class="fas fa-link"></i> Sicherheitsprüfung ссылок
+                    <i class="fas fa-link"></i> Sicherheitsprüfung für Links
                 </h3>
             </div>
             <div class="card-body">
                 <p class="lead">
-                    Link-Checks на фишинг, вирусы и вредоносный контент. 
-                    Используем VirusTotal, Google Safe Browsing и URLhaus.
+                    Link-Checks auf Phishing, Viren und Malware. 
+                    Mit VirusTotal, Google Safe Browsing und URLhaus.
                 </p>
                 
-                <!-- Форма проверки -->
+                <!-- Prüfungsformular -->
                 <form id="checkForm" class="mb-4">
                     <div class="mb-3">
-                        <label for="urlInput" class="form-label">URL для проверки</label>
+                        <label for="urlInput" class="form-label">URL zur Überprüfung</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text">
                                 <i class="fas fa-link"></i>
@@ -32,46 +32,46 @@
                                    placeholder="https://suspicious-link.com"
                                    required>
                             <button type="submit" class="btn btn-success" id="checkBtn">
-                                <i class="fas fa-shield-alt"></i> Проверить
+                                <i class="fas fa-shield-alt"></i> Prüfen
                             </button>
                         </div>
                         <div class="form-text">
-                            Вставьте подозрительную ссылку для проверки
+                            Verdächtigen Link zur Überprüfung einfügen
                         </div>
                     </div>
                 </form>
                 
-                <!-- Лимиты -->
+                <!-- Limits -->
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
-                    <strong>Ваш лимит:</strong> 
+                    <strong>Ihr Limit:</strong> 
                     {% if current_user.subscription_plan.value == 'free' %}
-                        20 проверок в день (осталось: {{ limits.link_checks_remaining }})
+                        20 Prüfungen pro Tag (übrig: {{ limits.link_checks_remaining }})
                     {% elif current_user.subscription_plan.value == 'starter' %}
-                        200 проверок в день (осталось: {{ limits.link_checks_remaining }})
+                        200 Prüfungen pro Tag (übrig: {{ limits.link_checks_remaining }})
                     {% else %}
-                        Unbegrenzt проверки
+                        Unbegrenzte Prüfungen
                     {% endif %}
                 </div>
                 
-                <!-- Результаты -->
+                <!-- Ergebnisse -->
                 <div id="checkResults" style="display: none;">
-                    <!-- Загрузка -->
+                    <!-- Laden -->
                     <div id="checkProgress" class="text-center py-5">
                         <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="visually-hidden">Загрузка...</span>
+                            <span class="visually-hidden">Laden...</span>
                         </div>
-                        <h5>Проверка ссылки...</h5>
-                        <p class="text-muted">Сканирование через несколько баз данных угроз</p>
+                        <h5>Link prüfen...</h5>
+                        <p class="text-muted">Scan durch mehrere Bedrohungsdatenbanken</p>
                     </div>
                     
-                    <!-- Результат -->
+                    <!-- Ergebnis -->
                     <div id="checkResult" style="display: none;">
-                        <!-- Уровень угрозы -->
+                        <!-- Bedrohungsstufe -->
                         <div class="card mb-4" id="threatCard">
                             <div class="card-body text-center py-5">
                                 <i class="fas fa-shield-alt fa-5x mb-3" id="threatIcon"></i>
-                                <h2 id="threatTitle">Безопасно</h2>
+                                <h2 id="threatTitle">Sicher</h2>
                                 <p class="lead mb-0" id="threatDescription"></p>
                                 <div class="mt-3">
                                     <span class="badge badge-lg" id="threatBadge">SAFE</span>
@@ -82,7 +82,7 @@
                         <!-- Confidence Score -->
                         <div class="card mb-4">
                             <div class="card-body">
-                                <h5 class="mb-3">Уровень уверенности</h5>
+                                <h5 class="mb-3">Vertrauensniveau</h5>
                                 <div class="progress" style="height: 40px;">
                                     <div class="progress-bar" 
                                          id="confidenceBar"
@@ -94,11 +94,11 @@
                             </div>
                         </div>
                         
-                        <!-- AI Объяснение -->
+                        <!-- KI-Erklärung -->
                         <div class="card mb-4" id="aiExplanationCard" style="display: none;">
                             <div class="card-header bg-info text-white">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-robot"></i> AI Объяснение
+                                    <i class="fas fa-robot"></i> KI-Erklärung
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -106,11 +106,11 @@
                             </div>
                         </div>
                         
-                        <!-- Детали проверки -->
+                        <!-- Prüfungsdetails -->
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-info-circle"></i> Детали проверки
+                                    <i class="fas fa-info-circle"></i> Prüfungsdetails
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -128,22 +128,22 @@
                                         <span id="urlhausStatus" class="ms-2"></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <strong>SSL валидность:</strong>
+                                        <strong>SSL-Gültigkeit:</strong>
                                         <span id="sslStatus" class="ms-2"></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <strong>Возраст домена:</strong>
+                                        <strong>Domain-Alter:</strong>
                                         <span id="domainAge" class="ms-2"></span>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <strong>Короткая ссылка:</strong>
+                                        <strong>Kurz-URL:</strong>
                                         <span id="shortUrl" class="ms-2"></span>
                                     </div>
                                 </div>
                                 
-                                <!-- Причины -->
+                                <!-- Gründe -->
                                 <div id="reasonsContainer" class="mt-3" style="display: none;">
-                                    <h6>Обнаруженные проблемы:</h6>
+                                    <h6>Gefundene Probleme:</h6>
                                     <ul id="reasonsList"></ul>
                                 </div>
                             </div>
@@ -152,28 +152,28 @@
                         <!-- Aktionen -->
                         <div class="text-center">
                             <button class="btn btn-success" onclick="window.location.reload()">
-                                <i class="fas fa-redo"></i> Новая проверка
+                                <i class="fas fa-redo"></i> Neue Prüfung
                             </button>
                             <a href="{{ url_for('dashboard.history_page') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-history"></i> История
+                                <i class="fas fa-history"></i> Verlauf
                             </a>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Информация -->
+                <!-- Information -->
                 <div class="card bg-light mt-4">
                     <div class="card-body">
-                        <h6><i class="fas fa-shield-alt"></i> Источники проверки:</h6>
+                        <h6><i class="fas fa-shield-alt"></i> Prüfquellen:</h6>
                         <ul class="mb-2">
-                            <li><strong>VirusTotal</strong> - база из 70+ антивирусов</li>
-                            <li><strong>Google Safe Browsing</strong> - фишинг и malware</li>
-                            <li><strong>URLhaus</strong> - база вредоносных URL</li>
-                            <li><strong>SSL проверка</strong> - валидность сертификата</li>
-                            <li><strong>WHOIS</strong> - возраст домена</li>
+                            <li><strong>VirusTotal</strong> - Datenbank mit 70+ Antivirenprogrammen</li>
+                            <li><strong>Google Safe Browsing</strong> - Phishing und Malware</li>
+                            <li><strong>URLhaus</strong> - Malicious URL Datenbank</li>
+                            <li><strong>SSL-Prüfung</strong> - Zertifikatsgültigkeit</li>
+                            <li><strong>WHOIS</strong> - Domain-Alter</li>
                         </ul>
                         <small class="text-muted">
-                            ⚠️ Проверка не гарантирует 100% безопасность. Будьте осторожны с подозрительными ссылками.
+                            ⚠️ Die Prüfung garantiert keine 100%ige Sicherheit. Seien Sie vorsichtig mit verdächtigen Links.
                         </small>
                     </div>
                 </div>
@@ -194,12 +194,12 @@ document.getElementById('checkForm').addEventListener('submit', async (e) => {
     const progressDiv = document.getElementById('checkProgress');
     const resultDiv = document.getElementById('checkResult');
     
-    // Показать результаты
+    // Ergebnisse anzeigen
     resultsDiv.style.display = 'block';
     progressDiv.style.display = 'block';
     resultDiv.style.display = 'none';
     
-    SecurityCheck.showButtonLoading(checkBtn, 'Проверка...');
+    SecurityCheck.showButtonLoading(checkBtn, 'Prüfen...');
     
     try {
         const result = await SecurityCheckAPI.checkLink(url);
@@ -214,13 +214,13 @@ document.getElementById('checkForm').addEventListener('submit', async (e) => {
         // API возвращает {success: true, check: {...}} - нужно брать data из check!
         displayResults(result.check);
         
-        // Показать результаты
+        // Ergebnisse anzeigen
         setTimeout(() => {
             progressDiv.style.display = 'none';
             resultDiv.style.display = 'block';
         }, 500);
         
-        SecurityCheck.showNotification('Проверка завершена', 'success');
+        SecurityCheck.showNotification('Prüfung abgeschlossen', 'success');
         
     } catch (error) {
         SecurityCheck.showNotification('Fehler: ' + error.message, 'danger');
@@ -236,26 +236,26 @@ function displayResults(data) {
     const threatDescription = document.getElementById('threatDescription');
     const threatBadge = document.getElementById('threatBadge');
     
-    // Уровень угрозы
+    // Bedrohungsstufe
     if (data.threat_level === 'safe') {
         threatCard.className = 'card mb-4 border-success';
         threatIcon.className = 'fas fa-shield-alt fa-5x mb-3 text-success';
-        threatTitle.textContent = 'Безопасно';
-        threatDescription.textContent = 'Ссылка не обнаружена в базах угроз';
+        threatTitle.textContent = 'Sicher';
+        threatDescription.textContent = 'Link nicht in Bedrohungsdatenbanken gefunden';
         threatBadge.className = 'badge bg-success badge-lg';
         threatBadge.textContent = 'SAFE';
     } else if (data.threat_level === 'warning') {
         threatCard.className = 'card mb-4 border-warning';
         threatIcon.className = 'fas fa-exclamation-triangle fa-5x mb-3 text-warning';
-        threatTitle.textContent = 'Предупреждение';
-        threatDescription.textContent = 'Обнаружены подозрительные признаки';
+        threatTitle.textContent = 'Warnung';
+        threatDescription.textContent = 'Verdächtige Anzeichen gefunden';
         threatBadge.className = 'badge bg-warning badge-lg';
         threatBadge.textContent = 'WARNING';
     } else {
         threatCard.className = 'card mb-4 border-danger';
         threatIcon.className = 'fas fa-times-circle fa-5x mb-3 text-danger';
-        threatTitle.textContent = 'Опасно!';
-        threatDescription.textContent = 'Ссылка содержит угрозу';
+        threatTitle.textContent = 'Gefährlich!';
+        threatDescription.textContent = 'Link enthält Bedrohung';
         threatBadge.className = 'badge bg-danger badge-lg';
         threatBadge.textContent = 'DANGER';
     }
@@ -274,35 +274,35 @@ function displayResults(data) {
         document.getElementById('aiExplanationCard').style.display = 'block';
     }
     
-    // Детали
+    // Detaillierte Ergebnisse
     const vtScore = data.virustotal_score;
     document.getElementById('vtScore').innerHTML = 
         vtScore !== null && vtScore !== undefined ? 
-        `<span class="badge bg-${vtScore > 0 ? 'danger' : 'success'}">${vtScore} детекций</span>` :
-        '<span class="text-muted">undefined</span>';
+        `<span class="badge bg-${vtScore > 0 ? 'danger' : 'success'}">${vtScore} Erkennungen</span>` :
+        '<span class="text-muted">Unbekannt</span>';
     
     document.getElementById('gsbStatus').innerHTML = 
         data.safe_browsing_threats && data.safe_browsing_threats.length > 0 ?
         `<span class="badge bg-danger">${data.safe_browsing_threats.join(', ')}</span>` :
-        '<span class="badge bg-success">Чисто</span>';
+        '<span class="badge bg-success">Sauber</span>';
     
     document.getElementById('urlhausStatus').innerHTML = 
         data.urlhaus_status === 'online' ?
-        '<span class="badge bg-danger">В базе угроз</span>' :
-        '<span class="badge bg-success">Не найдено</span>';
+        '<span class="badge bg-danger">In Bedrohungsdatenbank</span>' :
+        '<span class="badge bg-success">Nicht gefunden</span>';
     
     const sslStatus = document.getElementById('sslStatus');
     if (data.ssl_valid === null || data.ssl_valid === undefined) {
-        sslStatus.innerHTML = '<span class="badge bg-secondary">Не проверено</span>';
+        sslStatus.innerHTML = '<span class="badge bg-secondary">Nicht geprüft</span>';
     } else if (data.ssl_valid === true) {
-        sslStatus.innerHTML = '<span class="badge bg-success">Валидный</span>';
+        sslStatus.innerHTML = '<span class="badge bg-success">Gültig</span>';
     } else {
-        sslStatus.innerHTML = '<span class="badge bg-danger">Невалидный</span>';
+        sslStatus.innerHTML = '<span class="badge bg-danger">Ungültig</span>';
     }
     
-    document.getElementById('domainAge').textContent = data.domain_age || 'Неизвестно';
+    document.getElementById('domainAge').textContent = data.domain_age || 'Unbekannt';
     document.getElementById('shortUrl').innerHTML = 
-        data.is_shortened ? '<span class="badge bg-warning">Да</span>' : '<span class="badge bg-secondary">Нет</span>';
+        data.is_shortened ? '<span class="badge bg-warning">Ja</span>' : '<span class="badge bg-secondary">Nein</span>';
     
     // Причины
     if (data.reasons && data.reasons.length > 0) {
