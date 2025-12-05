@@ -13,14 +13,14 @@
             </div>
             <div class="card-body">
                 <p class="lead">
-                    Комплексная проверка веб-сайта на уязвимости: SSL сертификаты, 
-                    заголовки безопасности, формы загрузки файлов и многое другое.
+                    Umfassende Überprüfung der Website auf Schwachstellen: SSL-Zertifikate, 
+                    Sicherheitsheader, Datei-Upload-Formulare und vieles mehr.
                 </p>
                 
-                <!-- Форма сканирования -->
+                <!-- Scan-Formular -->
                 <form id="scanForm" class="mb-4">
                     <div class="mb-3">
-                        <label for="urlInput" class="form-label">URL сайта</label>
+                        <label for="urlInput" class="form-label">Website-URL</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text">
                                 <i class="fas fa-link"></i>
@@ -32,35 +32,35 @@
                                    placeholder="https://example.com"
                                    required>
                             <button type="submit" class="btn btn-primary" id="scanBtn">
-                                <i class="fas fa-search"></i> Проверить
+                                <i class="fas fa-search"></i> Prüfen
                             </button>
                         </div>
                         <div class="form-text">
-                            Введите полный URL сайта (https://example.com)
+                            Geben Sie die vollständige URL ein (https://example.com)
                         </div>
                     </div>
                 </form>
                 
-                <!-- Лимиты -->
+                <!-- Limits -->
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle"></i>
-                    <strong>Ваш лимит:</strong> 
+                    <strong>Ihr Limit:</strong> 
                     {% if current_user.subscription_plan.value == 'free' %}
-                        10 проверок в день (осталось: {{ limits.web_scans_remaining }})
+                        10 Prüfungen pro Tag (übrig: {{ limits.web_scans_remaining }})
                     {% elif current_user.subscription_plan.value == 'starter' %}
-                        100 проверок в день (осталось: {{ limits.web_scans_remaining }})
+                        100 Prüfungen pro Tag (übrig: {{ limits.web_scans_remaining }})
                     {% else %}
-                        Unbegrenzt проверки
+                        Unbegrenzte Prüfungen
                     {% endif %}
                     
                     {% if current_user.subscription_plan.value == 'free' %}
                         <a href="{{ url_for('dashboard.pricing_page') }}" class="alert-link ms-2">
-                            Улучшить тариф <i class="fas fa-arrow-right"></i>
+                            Tarif upgraden <i class="fas fa-arrow-right"></i>
                         </a>
                     {% endif %}
                 </div>
                 
-                <!-- Результаты -->
+                <!-- Ergebnisse -->
                 <div id="scanResults" style="display: none;">
                     <!-- Fortschritt -->
                     <div id="scanProgress" class="mb-4">
@@ -71,15 +71,15 @@
                                  style="width: 0%" 
                                  id="progressBar">0%</div>
                         </div>
-                        <small class="text-muted mt-2 d-block" id="progressText">Подключение к сайту...</small>
+                        <small class="text-muted mt-2 d-block" id="progressText">Verbindung zur Website...</small>
                     </div>
                     
-                    <!-- Результат -->
+                    <!-- Ergebnis -->
                     <div id="scanResult" style="display: none;">
-                        <!-- Bewertung безопасности -->
+                        <!-- Sicherheitsbewertung -->
                         <div class="card mb-4 border-0 bg-light">
                             <div class="card-body text-center">
-                                <h4 class="mb-3">Bewertung безопасности</h4>
+                                <h4 class="mb-3">Sicherheitsbewertung</h4>
                                 <div class="row align-items-center">
                                     <div class="col-md-4">
                                         <div class="security-score" id="securityScore">0</div>
@@ -93,7 +93,7 @@
                                             </div>
                                         </div>
                                         <div class="mb-2">
-                                            <strong>Заголовки:</strong> <span id="headersScore">0</span>/100
+                                            <strong>Header:</strong> <span id="headersScore">0</span>/100
                                             <div class="progress" style="height: 10px;">
                                                 <div class="progress-bar bg-success" id="headersBar" style="width: 0%"></div>
                                             </div>
@@ -109,11 +109,11 @@
                             </div>
                         </div>
                         
-                        <!-- AI Объяснение -->
+                        <!-- KI-Erklärung -->
                         <div class="card mb-4" id="aiSummaryCard" style="display: none;">
                             <div class="card-header bg-info text-white">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-robot"></i> AI Объяснение
+                                    <i class="fas fa-robot"></i> KI-Erklärung
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -121,13 +121,13 @@
                             </div>
                         </div>
                         
-                        <!-- Статистика проблем -->
+                        <!-- Problemstatistik -->
                         <div class="row mb-4">
                             <div class="col-md-3 col-sm-6 mb-3">
                                 <div class="card border-danger">
                                     <div class="card-body text-center">
                                         <h2 class="text-danger mb-0" id="criticalCount">0</h2>
-                                        <small class="text-muted">Критичных</small>
+                                        <small class="text-muted">Kritisch</small>
                                     </div>
                                 </div>
                             </div>
@@ -135,7 +135,7 @@
                                 <div class="card border-warning">
                                     <div class="card-body text-center">
                                         <h2 class="text-warning mb-0" id="highCount">0</h2>
-                                        <small class="text-muted">Высоких</small>
+                                        <small class="text-muted">Hoch</small>
                                     </div>
                                 </div>
                             </div>
@@ -143,7 +143,7 @@
                                 <div class="card border-info">
                                     <div class="card-body text-center">
                                         <h2 class="text-info mb-0" id="mediumCount">0</h2>
-                                        <small class="text-muted">Средних</small>
+                                        <small class="text-muted">Mittel</small>
                                     </div>
                                 </div>
                             </div>
@@ -151,17 +151,17 @@
                                 <div class="card border-secondary">
                                     <div class="card-body text-center">
                                         <h2 class="text-secondary mb-0" id="lowCount">0</h2>
-                                        <small class="text-muted">Низких</small>
+                                        <small class="text-muted">Niedrig</small>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Детальные результаты -->
+                        <!-- Detaillierte Ergebnisse -->
                         <div class="card">
                             <div class="card-header">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-shield-alt"></i> Обнаруженные уязвимости
+                                    <i class="fas fa-shield-alt"></i> Gefundene Schwachstellen
                                 </h5>
                             </div>
                             <div class="card-body">
@@ -169,35 +169,35 @@
                             </div>
                         </div>
                         
-                        <!-- CTA - Предложение услуг -->
+                        <!-- CTA - Serviceangebot -->
                         <div class="card bg-gradient-primary text-white mt-4" id="ctaBlock" style="display: none;">
                             <div class="card-body text-center py-5">
                                 <h3 class="mb-3">
-                                    <i class="fas fa-exclamation-triangle"></i> Обнаружены уязвимости?
+                                    <i class="fas fa-exclamation-triangle"></i> Schwachstellen gefunden?
                                 </h3>
                                 <p class="lead mb-4">
-                                    Мы разработаем для вас <strong>100% защищенный сайт</strong> без единой уязвимости!
+                                    Wir entwickeln für Sie eine <strong>100% sichere Website</strong> ohne jede Schwachstelle!
                                 </p>
                                 <div class="row justify-content-center mb-4">
                                     <div class="col-md-3 mb-3">
                                         <div class="bg-white text-dark rounded p-3">
                                             <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
-                                            <div class="fw-bold">100% защита</div>
-                                            <small>Все уязвимости закрыты</small>
+                                            <div class="fw-bold">100% Schutz</div>
+                                            <small>Alle Schwachstellen behoben</small>
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <div class="bg-white text-dark rounded p-3">
                                             <i class="fas fa-rocket fa-2x text-primary mb-2"></i>
-                                            <div class="fw-bold">Быстро</div>
-                                            <small>От 2 недель до запуска</small>
+                                            <div class="fw-bold">Schnell</div>
+                                            <small>Ab 2 Wochen bis Start</small>
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <div class="bg-white text-dark rounded p-3">
                                             <i class="fas fa-certificate fa-2x text-warning mb-2"></i>
                                             <div class="fw-bold">SSL + CDN</div>
-                                            <small>Бесплатно в комплекте</small>
+                                            <small>Kostenlos inklusive</small>
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
@@ -209,8 +209,8 @@
                                     </div>
                                 </div>
                                 <div class="mb-4">
-                                    <h4 class="mb-1">Стоимость от €2,500</h4>
-                                    <small>В зависимости от сложности проекта</small>
+                                    <h4 class="mb-1">Preis ab €2.500</h4>
+                                    <small>Abhängig von der Projektkomplexe ität</small>
                                 </div>
                                 <button class="btn btn-light btn-lg me-2" onclick="showContactForm()">
                                     <i class="fas fa-envelope"></i> Beratung erhalten
@@ -221,12 +221,12 @@
                             </div>
                         </div>
                         
-                        <!-- Форма обратной связи -->
+                        <!-- Kontaktformular -->
                         <div class="modal fade" id="contactModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Заявка на консультацию</h5>
+                                        <h5 class="modal-title">Beratungsanfrage</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
@@ -244,19 +244,19 @@
                                                 <input type="tel" class="form-control" name="phone">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">URL вашего сайта</label>
+                                                <label class="form-label">URL Ihrer Website</label>
                                                 <input type="url" class="form-control" name="website" id="contactWebsite">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Комментарий</label>
+                                                <label class="form-label">Kommentar</label>
                                                 <textarea class="form-control" name="message" rows="3"></textarea>
                                             </div>
                                         </form>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
                                         <button type="button" class="btn btn-primary" onclick="submitContactForm()">
-                                            <i class="fas fa-paper-plane"></i> Отправить
+                                            <i class="fas fa-paper-plane"></i> Senden
                                         </button>
                                     </div>
                                 </div>
@@ -266,7 +266,7 @@
                         <!-- Aktionen -->
                         <div class="mt-4 text-center">
                             <button class="btn btn-primary" onclick="window.location.reload()">
-                                <i class="fas fa-redo"></i> Новая проверка
+                                <i class="fas fa-redo"></i> Neue Prüfung
                             </button>
                             <a href="{{ url_for('dashboard.history_page') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-history"></i> Scan-Verlauf
@@ -275,17 +275,17 @@
                     </div>
                 </div>
                 
-                <!-- Примеры -->
+                <!-- Beispiele -->
                 <div class="card bg-light mt-4">
                     <div class="card-body">
-                        <h6><i class="fas fa-lightbulb"></i> Что проверяется:</h6>
+                        <h6><i class="fas fa-lightbulb"></i> Was wird überprüft:</h6>
                         <ul class="mb-0">
-                            <li>SSL/TLS сертификат (валидность, срок действия)</li>
+                            <li>SSL/TLS-Zertifikat (Gültigkeit, Ablaufdatum)</li>
                             <li>Security Headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)</li>
-                            <li>HTML проблемы безопасности (inline scripts, устаревшие библиотеки)</li>
-                            <li>Einstellungen cookies (Secure, HttpOnly, SameSite)</li>
-                            <li>Опасные HTTP методы (TRACE, PUT, DELETE)</li>
-                            <li>Формы загрузки файлов и их защита</li>
+                            <li>HTML-Sicherheitsprobleme (Inline-Scripts, veraltete Bibliotheken)</li>
+                            <li>Cookie-Einstellungen (Secure, HttpOnly, SameSite)</li>
+                            <li>Gefährliche HTTP-Methoden (TRACE, PUT, DELETE)</li>
+                            <li>Datei-Upload-Formulare und deren Schutz</li>
                         </ul>
                     </div>
                 </div>
@@ -326,7 +326,7 @@ async function submitContactForm() {
     
     try {
         // Здесь будет API вызов для отправки заявки
-        SecurityCheck.showNotification('Спасибо! Мы свяжемся с вами в ближайшее время.', 'success');
+        SecurityCheck.showNotification('Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.', 'success');
         
         // Закрываем модальное окно
         const modalElement = document.getElementById('contactModal');
@@ -338,7 +338,7 @@ async function submitContactForm() {
         }
         form.reset();
     } catch (error) {
-        SecurityCheck.showNotification('Fehler отправки. Попробуйте позже.', 'danger');
+        SecurityCheck.showNotification('Fehler beim Senden. Bitte versuchen Sie es später.', 'danger');
     }
 }
 
@@ -372,12 +372,12 @@ document.getElementById('scanForm').addEventListener('submit', async (e) => {
         const progressText = document.getElementById('progressText');
         
         const stages = [
-            'Проверка SSL сертификата...',
-            'Анализ заголовков безопасности...',
-            'Сканирование HTML...',
-            'Проверка cookies...',
-            'Поиск уязвимостей...',
-            'Генерация отчета...'
+            'SSL-Zertifikat prüfen...',
+            'Sicherheitsheader analysieren...',
+            'HTML scannen...',
+            'Cookies prüfen...',
+            'Schwachstellen suchen...',
+            'Bericht erstellen...'
         ];
         
         const progressInterval = setInterval(() => {

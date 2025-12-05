@@ -64,43 +64,43 @@
                         </div>
                     </div>
                     <p class="text-muted mt-2 mb-0">
-                        <small>Проверка устройств в сети... Это может занять 1-2 минуты</small>
+                        <small>Geräte im Netzwerk prüfen... Dies kann 1-2 Minuten dauern</small>
                     </p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Результаты -->
+    <!-- Ergebnisse -->
     <div class="row mt-4" id="resultsSection" style="display: none;">
         <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-check-circle"></i> Результаты сканирования
+                        <i class="fas fa-check-circle"></i> Scan-Ergebnisse
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Общая информация -->
+                    <!-- Allgemeine Informationen -->
                     <div class="row mb-4">
                         <div class="col-md-4">
                             <div class="text-center">
                                 <i class="fas fa-network-wired fa-3x text-primary mb-2"></i>
-                                <h6>Ваша сеть</h6>
+                                <h6>Ihr Netzwerk</h6>
                                 <strong id="networkInfo">-</strong>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-center">
                                 <i class="fas fa-laptop fa-3x text-info mb-2"></i>
-                                <h6>Ваш IP</h6>
+                                <h6>Ihre IP</h6>
                                 <strong id="yourIP">-</strong>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="text-center">
                                 <i class="fas fa-devices fa-3x text-warning mb-2"></i>
-                                <h6>Всего устройств</h6>
+                                <h6>Geräte gesamt</h6>
                                 <strong id="totalDevices">0</strong>
                             </div>
                         </div>
@@ -108,29 +108,29 @@
 
                     <hr>
 
-                    <!-- Список устройств -->
-                    <h5 class="mb-3"><i class="fas fa-list"></i> Подключенные устройства</h5>
+                    <!-- Geräteliste -->
+                    <h5 class="mb-3"><i class="fas fa-list"></i> Verbundene Geräte</h5>
                     <div id="devicesList"></div>
 
-                    <!-- AI Объяснение -->
+                    <!-- KI-Erklärung -->
                     <div class="mt-4" id="aiExplanation" style="display: none;">
                         <div class="alert alert-info">
-                            <h6><i class="fas fa-robot"></i> Анализ безопасности</h6>
+                            <h6><i class="fas fa-robot"></i> Sicherheitsanalyse</h6>
                             <p id="aiExplanationText"></p>
                         </div>
                     </div>
 
-                    <!-- Рекомендации -->
+                    <!-- Empfehlungen -->
                     <div class="mt-2" id="aiRecommendation" style="display: none;">
                         <div class="alert alert-warning">
-                            <h6><i class="fas fa-lightbulb"></i> Рекомендации</h6>
+                            <h6><i class="fas fa-lightbulb"></i> Empfehlungen</h6>
                             <div id="aiRecommendationText"></div>
                         </div>
                     </div>
 
                     <div class="text-center mt-4">
                         <button class="btn btn-warning" id="newScanBtn">
-                            <i class="fas fa-redo"></i> Новое сканирование
+                            <i class="fas fa-redo"></i> Neuer Scan
                         </button>
                     </div>
                 </div>
@@ -138,12 +138,12 @@
         </div>
     </div>
 
-    <!-- История -->
+    <!-- Verlauf -->
     <div class="row mt-4">
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-history"></i> История сканирований</h5>
+                    <h5 class="mb-0"><i class="fas fa-history"></i> Scan-Verlauf</h5>
                 </div>
                 <div class="card-body">
                     <div id="historyList"></div>
