@@ -17,7 +17,7 @@ urllib3==2.1.0
 
 # HTML парсинг
 beautifulsoup4==4.12.2
-lxml==4.9.3
+lxml==5.3.0
 
 # SSL/TLS
 pyOpenSSL==23.3.0
