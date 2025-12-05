@@ -13,16 +13,16 @@
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
-                        <i class="fas fa-user me-2"></i> Профиль
+                        <i class="fas fa-user me-2"></i> Profil
                     </a>
                     <a href="#subscription" class="list-group-item list-group-item-action" data-bs-toggle="pill">
-                        <i class="fas fa-star me-2"></i> Подписка
+                        <i class="fas fa-star me-2"></i> Abonnement
                     </a>
                     <a href="#security" class="list-group-item list-group-item-action" data-bs-toggle="pill">
-                        <i class="fas fa-lock me-2"></i> Безопасность
+                        <i class="fas fa-lock me-2"></i> Sicherheit
                     </a>
                     <a href="#usage" class="list-group-item list-group-item-action" data-bs-toggle="pill">
-                        <i class="fas fa-chart-bar me-2"></i> Использование
+                        <i class="fas fa-chart-bar me-2"></i> Nutzung
                     </a>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                 <div class="tab-pane fade show active" id="profile">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-user"></i> Информация профиля</h5>
+                            <h5 class="mb-0"><i class="fas fa-user"></i> Profilinformationen</h5>
                         </div>
                         <div class="card-body">
                             <form id="profileForm">
@@ -42,18 +42,18 @@
                                     <div class="col-md-6">
                                         <label class="form-label">E-Mail</label>
                                         <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
-                                        <small class="text-muted">E-Mail нельзя изменить</small>
+                                        <small class="text-muted">E-Mail kann nicht geändert werden</small>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Name</label>
                                         <input type="text" class="form-control" name="full_name" 
-                                               value="{{ current_user.full_name or '' }}" placeholder="Ваше имя">
+                                               value="{{ current_user.full_name or '' }}" placeholder="Ihr Name">
                                     </div>
                                 </div>
 
                                 <div class="row mb-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Компания</label>
+                                        <label class="form-label">Firma</label>
                                         <input type="text" class="form-control" name="company_name" 
                                                value="{{ current_user.company_name or '' }}" placeholder="Firmenname">
                                     </div>
@@ -65,7 +65,7 @@
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Сохранить изменения
+                                    <i class="fas fa-save"></i> Änderungen speichern
                                 </button>
                             </form>
                         </div>
@@ -73,12 +73,12 @@
 
                     <div class="card mt-4">
                         <div class="card-header bg-danger text-white">
-                            <h5 class="mb-0"><i class="fas fa-trash"></i> Удаление аккаунта</h5>
+                            <h5 class="mb-0"><i class="fas fa-trash"></i> Konto löschen</h5>
                         </div>
                         <div class="card-body">
                             <p class="text-muted">
-                                Удаление аккаунта приведет к безвозвратному удалению всех ваших данных, 
-                                включая историю сканирований и отчеты.
+                                Das Löschen des Kontos führt zur unwiderruflichen Löschung all Ihrer Daten, 
+                                einschließlich Scan-Verlauf und Berichten.
                             </p>
                             <button class="btn btn-danger" onclick="deleteAccount()">
                                 <i class="fas fa-exclamation-triangle"></i> Konto löschen
@@ -91,7 +91,7 @@
                 <div class="tab-pane fade" id="subscription">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-star"></i> Текущая подписка</h5>
+                            <h5 class="mb-0"><i class="fas fa-star"></i> Aktuelles Abonnement</h5>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -107,7 +107,7 @@
                                     </h3>
                                     <p class="text-muted">
                                         {% if current_user.subscription_plan.value == 'free' %}
-                                            Бесплатный тариф
+                                            Kostenloser Tarif
                                         {% elif current_user.subscription_plan.value == 'starter' %}
                                             €9.99 pro Monat
                                         {% else %}
@@ -117,7 +117,7 @@
                                 </div>
                                 <div class="col-md-6 text-end">
                                     {% if current_user.subscription_expires %}
-                                    <p class="mb-1"><strong>Действует до:</strong></p>
+                                    <p class="mb-1"><strong>Gültig bis:</strong></p>
                                     <p>{{ current_user.subscription_expires.strftime('%d.%m.%Y') }}</p>
                                     {% endif %}
                                 </div>
@@ -127,19 +127,19 @@
 
                             <div class="mb-3">
                                 <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-primary">
-                                    <i class="fas fa-arrow-up"></i> Изменить тариф
+                                    <i class="fas fa-arrow-up"></i> Tarif ändern
                                 </a>
                                 
                                 {% if current_user.subscription_plan.value != 'free' %}
                                 <button class="btn btn-outline-danger" onclick="cancelSubscription()">
-                                    <i class="fas fa-times"></i> Отменить подписку
+                                    <i class="fas fa-times"></i> Abonnement kündigen
                                 </button>
                                 {% endif %}
                             </div>
 
                             {% if current_user.stripe_customer_id %}
                             <a href="#" onclick="openCustomerPortal(); return false;" class="btn btn-outline-secondary">
-                                <i class="fas fa-credit-card"></i> Управление платежами
+                                <i class="fas fa-credit-card"></i> Zahlungen verwalten
                             </a>
                             {% endif %}
                         </div>
@@ -150,7 +150,7 @@
                 <div class="tab-pane fade" id="security">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-lock"></i> Смена пароля</h5>
+                            <h5 class="mb-0"><i class="fas fa-lock"></i> Passwort ändern</h5>
                         </div>
                         <div class="card-body">
                             <form id="passwordForm">
@@ -162,10 +162,10 @@
                                     <label class="form-label">Neues Passwort</label>
                                     <input type="password" class="form-control" name="new_password" 
                                            minlength="8" required>
-                                    <small class="text-muted">Минимум 8 символов</small>
+                                    <small class="text-muted">Mindestens 8 Zeichen</small>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Подтвердите новый пароль</label>
+                                    <label class="form-label">Neues Passwort bestätigen</label>
                                     <input type="password" class="form-control" name="confirm_password" required>
                                 </div>
                                 <button type="submit" class="btn btn-primary">
@@ -177,16 +177,16 @@
 
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-history"></i> Последний вход</h5>
+                            <h5 class="mb-0"><i class="fas fa-history"></i> Letzter Login</h5>
                         </div>
                         <div class="card-body">
                             {% if current_user.last_login %}
                             <p>
                                 <i class="fas fa-clock me-2"></i>
-                                {{ current_user.last_login.strftime('%d.%m.%Y в %H:%M') }}
+                                {{ current_user.last_login.strftime('%d.%m.%Y um %H:%M') }}
                             </p>
                             {% else %}
-                            <p class="text-muted">Информация недоступна</p>
+                            <p class="text-muted">Information nicht verfügbar</p>
                             {% endif %}
                         </div>
                     </div>
@@ -196,15 +196,15 @@
                 <div class="tab-pane fade" id="usage">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Статистика использования</h5>
+                            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Nutzungsstatistik</h5>
                         </div>
                         <div class="card-body">
-                            <p class="text-muted mb-4">Использование лимитов за текущий месяц</p>
+                            <p class="text-muted mb-4">Limit-Nutzung im aktuellen Monat</p>
 
                             <div id="usageStats">
                                 <div class="text-center py-5">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Загрузка...</span>
+                                        <span class="visually-hidden">Laden...</span>
                                     </div>
                                 </div>
                             </div>
@@ -213,7 +213,7 @@
 
                     <div class="card mt-4">
                         <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Лимиты тарифа</h5>
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Tarif-Limits</h5>
                         </div>
                         <div class="card-body">
                             {% if current_user.subscription_plan.value == 'free' %}
@@ -224,18 +224,18 @@
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5 Domain-Prüfungen pro Monat</li>
                             </ul>
                             <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-primary mt-3">
-                                Увеличить лимиты
+                                Limits erhöhen
                             </a>
                             {% elif current_user.subscription_plan.value == 'starter' %}
                             <ul class="list-unstyled">
-                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt проверки сайтов</li>
-                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt проверки ссылок</li>
-                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt WiFi-сканирования</li>
-                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzt проверки доменов</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzte Website-Prüfungen</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzte Link-Checks</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzte WiFi-Scans</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Unbegrenzte Domain-Prüfungen</li>
                             </ul>
                             {% else %}
                             <ul class="list-unstyled">
-                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Все возможности безлимитно</li>
+                                <li class="mb-2"><i class="fas fa-infinity text-success me-2"></i> Alle Möglichkeiten unbegrenzt</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> API-Zugriff</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Experten-Beratung (1 Stunde/Monat)</li>
                                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Prioritäts-Support</li>
