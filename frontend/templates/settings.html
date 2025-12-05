@@ -347,10 +347,10 @@ document.getElementById('passwordForm').addEventListener('submit', async (e) => 
     
     try {
         // TODO: Добавить API endpoint для смены пароля
-        SecurityCheck.showNotification('Пароль изменен', 'success');
+        SecurityCheck.showNotification('Passwort geändert', 'success');
         e.target.reset();
     } catch (error) {
-        SecurityCheck.showNotification('Fehler смены пароля', 'danger');
+        SecurityCheck.showNotification('Fehler beim Passwort ändern', 'danger');
     }
 });
 
@@ -373,7 +373,7 @@ async function cancelSubscription() {
             SecurityCheck.showNotification(data.error, 'danger');
         }
     } catch (error) {
-        SecurityCheck.showNotification('Fehler отмены подписки', 'danger');
+        SecurityCheck.showNotification('Fehler beim Kündigen des Abonnements', 'danger');
     }
 }
 
@@ -389,7 +389,7 @@ async function openCustomerPortal() {
             SecurityCheck.showNotification(data.error, 'danger');
         }
     } catch (error) {
-        SecurityCheck.showNotification('Fehler открытия портала', 'danger');
+        SecurityCheck.showNotification('Fehler beim Öffnen des Portals', 'danger');
     }
 }
 
@@ -399,27 +399,27 @@ async function deleteAccount() {
         return;
     }
     
-    const confirmation = prompt('Введите "DELETE" для подтверждения удаления аккаунта:');
+    const confirmation = prompt('Geben Sie "DELETE" ein, um die Kontolöschung zu bestätigen:');
     if (confirmation !== 'DELETE') {
-        SecurityCheck.showNotification('Удаление отменено', 'info');
+        SecurityCheck.showNotification('Löschung abgebrochen', 'info');
         return;
     }
     
     try {
-        // TODO: Добавить API endpoint для удаления аккаунта
-        SecurityCheck.showNotification('Аккаунт удален', 'success');
+        // TODO: API-Endpunkt für Kontolöschung hinzufügen
+        SecurityCheck.showNotification('Konto gelöscht', 'success');
         setTimeout(() => window.location.href = '/', 2000);
     } catch (error) {
-        SecurityCheck.showNotification('Fehler удаления аккаунта', 'danger');
+        SecurityCheck.showNotification('Fehler beim Löschen des Kontos', 'danger');
     }
 }
 
-// Загрузить статистику при переходе на вкладку Usage
+// Statistiken beim Wechsel zur Usage-Registerkarte laden
 document.querySelector('a[href="#usage"]').addEventListener('click', () => {
     loadUsageStats();
 });
 
-// Загрузить сразу если вкладка активна
+// Sofort laden, wenn Registerkarte aktiv ist
 if (window.location.hash === '#usage') {
     loadUsageStats();
 }

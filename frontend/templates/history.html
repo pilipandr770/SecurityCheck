@@ -372,7 +372,7 @@ function renderWebScanDetails(data) {
         <h5>URL: ${SecurityCheck.escapeHtml(data.url)}</h5>
         <p><strong>Bewertung:</strong> ${data.security_score}/100 (${grade})</p>
         <p><strong>SSL:</strong> ${data.ssl_score}/100</p>
-        <p><strong>Заголовки:</strong> ${data.headers_score}/100</p>
+        <p><strong>Header:</strong> ${data.headers_score}/100</p>
         <p><strong>HTML:</strong> ${data.html_score}/100</p>
         <p><strong>Datum:</strong> ${SecurityCheck.formatDateTime(data.created_at)}</p>
         ${data.ai_summary ? `<div class="alert alert-info"><strong>AI:</strong> ${data.ai_summary}</div>` : ''}
@@ -382,8 +382,8 @@ function renderWebScanDetails(data) {
 function renderLinkCheckDetails(data) {
     return `
         <h5>URL: ${SecurityCheck.escapeHtml(data.url)}</h5>
-        <p><strong>Угроза:</strong> <span class="badge bg-${data.threat_level === 'safe' ? 'success' : 'danger'}">${data.threat_level}</span></p>
-        <p><strong>Уверенность:</strong> ${data.confidence_score}%</p>
+        <p><strong>Bedrohung:</strong> <span class="badge bg-${data.threat_level === 'safe' ? 'success' : 'danger'}">${data.threat_level}</span></p>
+        <p><strong>Konfidenz:</strong> ${data.confidence_score}%</p>
         <p><strong>VirusTotal:</strong> ${data.virustotal_positives}/${data.virustotal_total}</p>
         <p><strong>Datum:</strong> ${SecurityCheck.formatDateTime(data.created_at)}</p>
         ${data.ai_explanation ? `<div class="alert alert-info"><strong>AI:</strong> ${data.ai_explanation}</div>` : ''}
@@ -392,10 +392,10 @@ function renderLinkCheckDetails(data) {
 
 function renderDomainIntelDetails(data) {
     return `
-        <h5>Домен: ${SecurityCheck.escapeHtml(data.domain)}</h5>
-        <p><strong>Репутация:</strong> ${data.reputation_score}/100</p>
+        <h5>Domain: ${SecurityCheck.escapeHtml(data.domain)}</h5>
+        <p><strong>Reputation:</strong> ${data.reputation_score}/100</p>
         <p><strong>Registrar:</strong> ${data.whois_info?.registrar || '-'}</p>
-        <p><strong>Создан:</strong> ${data.whois_info?.creation_date || '-'}</p>
+        <p><strong>Erstellt:</strong> ${data.whois_info?.creation_date || '-'}</p>
         <p><strong>Datum:</strong> ${SecurityCheck.formatDateTime(data.created_at)}</p>
         ${data.ai_explanation ? `<div class="alert alert-info"><strong>AI:</strong> ${data.ai_explanation}</div>` : ''}
     `;
@@ -413,7 +413,7 @@ async function deleteItem(type, id) {
             await SecurityCheckAPI.deleteDomainIntel(id);
         }
         
-        SecurityCheck.showNotification('Запись удалена', 'success');
+        SecurityCheck.showNotification('Eintrag gelöscht', 'success');
         loadHistory();
         
     } catch (error) {
@@ -421,7 +421,7 @@ async function deleteItem(type, id) {
     }
 }
 
-// Загрузить при открытии
+// Beim Öffnen laden
 loadHistory();
 </script>
 {% endblock %}
