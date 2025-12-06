@@ -272,6 +272,34 @@ class WebScan(db.Model):
     
     def to_dict(self, include_results=False):
         """Преобразовать в словарь для API"""
+        # Calculate category scores based on results
+        ssl_score = 100
+        headers_score = 100
+        html_score = 100
+        
+        if include_results or self.results.count() > 0:
+            results_list = self.results.all() if not include_results else self.results.all()
+            
+            for result in results_list:
+                # Category score penalties
+                penalty = 0
+                if result.severity == SeverityLevel.CRITICAL:
+                    penalty = 40
+                elif result.severity == SeverityLevel.HIGH:
+                    penalty = 25
+                elif result.severity == SeverityLevel.MEDIUM:
+                    penalty = 15
+                elif result.severity == SeverityLevel.LOW:
+                    penalty = 5
+                
+                # Apply penalty to correct category
+                if result.category == 'ssl':
+                    ssl_score = max(0, ssl_score - penalty)
+                elif result.category == 'headers':
+                    headers_score = max(0, headers_score - penalty)
+                elif result.category in ['html', 'forms', 'cookies']:
+                    html_score = max(0, html_score - penalty)
+        
         data = {
             'id': self.id,
             'target_url': self.target_url,
@@ -280,6 +308,9 @@ class WebScan(db.Model):
             'status': self.status.value,
             'progress': self.progress,
             'security_score': self.security_score,
+            'ssl_score': ssl_score,
+            'headers_score': headers_score,
+            'html_score': html_score,
             'total_issues': self.total_issues,
             'critical_issues': self.critical_issues,
             'high_issues': self.high_issues,

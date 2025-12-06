@@ -363,7 +363,7 @@ def run_scan(scan_id):
             try:
                 vuln_info = VulnerabilityKnowledge.get_vulnerability_info(
                     vuln_type, 
-                    language='ru',
+                    language='de',
                     verified=is_verified
                 )
                 if vuln_info:
@@ -382,7 +382,7 @@ def run_scan(scan_id):
                         vuln_type,
                         result.get('description', ''),
                         result['severity'],
-                        language='ru',
+                        language='de',
                         verified=is_verified
                     )
                     if isinstance(vuln_explain, dict):
@@ -428,7 +428,7 @@ def run_scan(scan_id):
         
         # Генерируем AI резюме
         try:
-            summary = ai.generate_scan_summary(results, scan.target_domain)
+            summary = ai.generate_scan_summary(results, scan.target_domain, language='de')
             scan.ai_summary = summary.get('summary')
             scan.ai_recommendations = summary.get('recommendations')
         except Exception as e:
