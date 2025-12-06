@@ -22,6 +22,12 @@
                         <p class="text-muted">Alle mit Ihrem Router verbundenen Geräte werden gefunden</p>
                     </div>
 
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Hinweis:</strong> WiFi-Scanning funktioniert nur auf lokalen Computern mit direktem Zugriff auf das Netzwerk. 
+                        Auf Cloud-Servern ist diese Funktion aus Sicherheitsgründen nicht verfügbar.
+                    </div>
+
                     {% if not can_scan %}
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i> {{ limit_message }}

@@ -122,7 +122,44 @@ class WiFiScanner:
     def get_mac_address(self, ip: str) -> Optional[str]:
         """Получает MAC адрес устройства"""
         try:
-            if platform.system().lower() == 'windows':
+            system = platform.system().lower()
+            
+            # На серверах без прямого доступа к сети MAC адреса недоступны
+            if system == 'linux':
+                # Проверяем, доступен ли ARP
+                try:
+                    # Используем ip neigh show (современная альтернатива arp)
+                    result = subprocess.run(
+                        ['ip', 'neigh', 'show', ip],
+                        capture_output=True,
+                        text=True,
+                        timeout=1
+                    )
+                    output = result.stdout
+                    
+                    # Ищем MAC в формате xx:xx:xx:xx:xx:xx
+                    mac_match = re.search(r'([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})', output)
+                    if mac_match:
+                        return mac_match.group(0).upper()
+                except FileNotFoundError:
+                    # Если ip команда не найдена, пробуем arp
+                    try:
+                        result = subprocess.run(
+                            ['arp', '-n', ip],
+                            capture_output=True,
+                            text=True,
+                            timeout=1
+                        )
+                        output = result.stdout
+                        
+                        mac_match = re.search(r'([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})', output)
+                        if mac_match:
+                            return mac_match.group(0).upper()
+                    except FileNotFoundError:
+                        logger.debug(f"Ни 'ip', ни 'arp' команды недоступны на этой системе")
+                        return None
+                        
+            elif system == 'windows':
                 result = subprocess.run(
                     ['arp', '-a', ip],
                     capture_output=True,
@@ -136,19 +173,6 @@ class WiFiScanner:
                 if mac_match:
                     mac = mac_match.group(0).replace('-', ':').upper()
                     return mac
-            else:
-                result = subprocess.run(
-                    ['arp', '-n', ip],
-                    capture_output=True,
-                    text=True,
-                    timeout=1
-                )
-                output = result.stdout
-                
-                # Ищем MAC в формате xx:xx:xx:xx:xx:xx
-                mac_match = re.search(r'([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})', output)
-                if mac_match:
-                    return mac_match.group(0).upper()
             
             return None
         except Exception as e:
@@ -299,7 +323,9 @@ class WiFiScanner:
         """Получает список IP из ARP таблицы (быстрее чем ping всех)"""
         active_ips = []
         try:
-            if platform.system().lower() == 'windows':
+            system = platform.system().lower()
+            
+            if system == 'windows':
                 result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=3)
                 lines = result.stdout.split('\n')
                 
@@ -317,20 +343,42 @@ class WiFiScanner:
                             not ip.startswith('0.')):
                             active_ips.append(ip)
             else:
-                result = subprocess.run(['arp', '-n'], capture_output=True, text=True, timeout=3)
-                lines = result.stdout.split('\n')
-                
-                for line in lines:
-                    match = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
-                    if match:
-                        ip = match.group(1)
-                        if (not ip.endswith('.255') and 
-                            not ip.endswith('.0') and
-                            not ip.startswith('224.') and
-                            not ip.startswith('239.') and
-                            not ip.startswith('255.') and
-                            not ip.startswith('0.')):
-                            active_ips.append(ip)
+                # Пробуем современную команду ip neigh
+                try:
+                    result = subprocess.run(['ip', 'neigh', 'show'], capture_output=True, text=True, timeout=3)
+                    lines = result.stdout.split('\n')
+                    
+                    for line in lines:
+                        match = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
+                        if match:
+                            ip = match.group(1)
+                            if (not ip.endswith('.255') and 
+                                not ip.endswith('.0') and
+                                not ip.startswith('224.') and
+                                not ip.startswith('239.') and
+                                not ip.startswith('255.') and
+                                not ip.startswith('0.')):
+                                active_ips.append(ip)
+                except FileNotFoundError:
+                    # Если ip команда не найдена, пробуем arp
+                    try:
+                        result = subprocess.run(['arp', '-n'], capture_output=True, text=True, timeout=3)
+                        lines = result.stdout.split('\n')
+                        
+                        for line in lines:
+                            match = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', line)
+                            if match:
+                                ip = match.group(1)
+                                if (not ip.endswith('.255') and 
+                                    not ip.endswith('.0') and
+                                    not ip.startswith('224.') and
+                                    not ip.startswith('239.') and
+                                    not ip.startswith('255.') and
+                                    not ip.startswith('0.')):
+                                    active_ips.append(ip)
+                    except FileNotFoundError:
+                        logger.warning("Ни 'ip', ни 'arp' команды недоступны - WiFi сканирование невозможно на этом сервере")
+                        return []
             
             return list(set(active_ips))  # Убираем дубликаты
         except Exception as e:
@@ -388,7 +436,8 @@ class WiFiScanner:
         if len(arp_ips) == 0:
             return {
                 'success': False,
-                'error': 'Не найдено устройств в сети'
+                'error': 'WiFi-сканирование недоступно на облачном сервере. Эта функция работает только на локальных компьютерах с доступом к WiFi сети.',
+                'is_cloud_server': True
             }
         
         if progress_callback:
