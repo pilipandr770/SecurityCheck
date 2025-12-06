@@ -4,9 +4,9 @@ Contact form routes
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
 from services.telegram_notifier import TelegramNotifier
-from utils.logger import setup_logger
+import logging
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 contact_bp = Blueprint('contact', __name__, url_prefix='/api/contact')
 
