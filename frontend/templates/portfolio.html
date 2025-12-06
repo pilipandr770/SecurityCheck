@@ -334,18 +334,32 @@ async function submitPortfolioContact() {
     const data = Object.fromEntries(formData);
     
     try {
-        // TODO: API für Anfragen verbinden
-        SecurityCheck.showNotification('Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.', 'success');
+        const response = await fetch('/api/contact/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
         
-        const modalElement = document.getElementById('contactModal');
-        if (modalElement) {
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
+        const result = await response.json();
+        
+        if (result.success) {
+            SecurityCheck.showNotification(result.message, 'success');
+            
+            const modalElement = document.getElementById('contactModal');
+            if (modalElement) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
             }
+            form.reset();
+        } else {
+            SecurityCheck.showNotification(result.message, 'danger');
         }
-        form.reset();
     } catch (error) {
+        console.error('Contact form error:', error);
         SecurityCheck.showNotification('Sendefehler. Versuchen Sie es später erneut oder schreiben Sie an andrii.it.info@gmail.com', 'danger');
     }
 }

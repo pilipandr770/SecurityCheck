@@ -112,6 +112,7 @@ def register_blueprints(app):
     from routes.stripe_webhook import stripe_webhook_bp
     from routes.verification import verification_bp
     from routes.usage import usage_bp
+    from routes.contact import contact_bp
     
     # Регистрация blueprints
     app.register_blueprint(main_bp)  # Юридические страницы
@@ -127,6 +128,7 @@ def register_blueprints(app):
     app.register_blueprint(verification_bp, url_prefix='/api/verification')
     app.register_blueprint(subscription_bp, url_prefix='/api/subscription')
     app.register_blueprint(usage_bp, url_prefix='/api/usage')
+    app.register_blueprint(contact_bp)  # Contact form
     
     # Отключаем CSRF для всех API blueprints
     csrf.exempt(web_scans_bp)
@@ -136,6 +138,7 @@ def register_blueprints(app):
     csrf.exempt(verification_bp)
     csrf.exempt(subscription_bp)
     csrf.exempt(usage_bp)
+    csrf.exempt(contact_bp)
     
     # Stripe webhook (без CSRF)
     app.register_blueprint(stripe_webhook_bp, url_prefix='/stripe')
