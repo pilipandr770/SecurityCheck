@@ -153,7 +153,7 @@ const scansCtx = document.getElementById('scansChart').getContext('2d');
 new Chart(scansCtx, {
     type: 'bar',
     data: {
-        labels: ['Web-Scans', 'Link-Check', 'WiFi', 'Domains'],
+        labels: ['Web-Scans', 'Link-Check', 'Domains'],
         datasets: [{
             label: 'Anzahl der Scans',
             data: [{{ stats.scans.web }}, {{ stats.scans.links }}, {{ stats.scans.network }}, {{ stats.scans.domains }}],

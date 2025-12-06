@@ -189,19 +189,6 @@ def link_check_page():
     return render_template('link_check.html', can_check=can_check, limit_message=message, limits=limits)
 
 
-@dashboard_bp.route('/scan/network')
-@dashboard_bp.route('/scan/wifi')  # Алиас для WiFi сканера
-@login_required
-def network_scan_page():
-    """Страница сканирования WiFi сети"""
-    can_scan, message = current_user.can_use_feature('network_scans')
-    limits = get_user_limits(current_user)
-    return render_template('wifi_scan.html', can_scan=can_scan, limit_message=message, limits=limits)
-
-# Регистрируем алиас для url_for
-dashboard_bp.add_url_rule('/scan/wifi', 'wifi_scan_page', network_scan_page)
-
-
 @dashboard_bp.route('/lookup/domain')
 @login_required
 def domain_lookup_page():

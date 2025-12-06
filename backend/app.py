@@ -106,7 +106,6 @@ def register_blueprints(app):
     from routes.main import main_bp
     from routes.web_scans import web_scans_bp
     from routes.link_checks import link_checks_bp
-    from routes.wifi_scan import wifi_scan_bp
     from routes.domain_intel import domain_intel_bp
     from routes.subscription import subscription_bp
     from routes.stripe_webhook import stripe_webhook_bp
@@ -123,7 +122,6 @@ def register_blueprints(app):
     # API blueprints (без CSRF для API endpoints)
     app.register_blueprint(web_scans_bp, url_prefix='/api/web-scans')
     app.register_blueprint(link_checks_bp, url_prefix='/api/link-checks')
-    app.register_blueprint(wifi_scan_bp, url_prefix='/api/wifi-scans')
     app.register_blueprint(domain_intel_bp, url_prefix='/api/domain-intel')
     app.register_blueprint(verification_bp, url_prefix='/api/verification')
     app.register_blueprint(subscription_bp, url_prefix='/api/subscription')
@@ -133,7 +131,6 @@ def register_blueprints(app):
     # Отключаем CSRF для всех API blueprints
     csrf.exempt(web_scans_bp)
     csrf.exempt(link_checks_bp)
-    csrf.exempt(wifi_scan_bp)
     csrf.exempt(domain_intel_bp)
     csrf.exempt(verification_bp)
     csrf.exempt(subscription_bp)

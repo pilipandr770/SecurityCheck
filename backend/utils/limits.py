@@ -66,7 +66,7 @@ def check_scan_limit(user: User, scan_type: str) -> dict:
     
     Args:
         user: Пользователь
-        scan_type: Тип сканирования ('web_scans', 'link_checks', 'wifi_scans', 'domain_lookups')
+        scan_type: Тип сканирования ('web_scans', 'link_checks', 'domain_lookups')
         
     Returns:
         dict: {
@@ -177,11 +177,6 @@ def get_usage_statistics(user: User) -> dict:
             'used': domain_lookups_count,
             'limit': limits['domain_lookups_per_month'],
             'remaining': -1 if limits['domain_lookups_per_month'] == -1 else max(0, limits['domain_lookups_per_month'] - domain_lookups_count)
-        },
-        'wifi_scans': {
-            'used': 0,
-            'limit': limits['wifi_scans_per_month'],
-            'remaining': limits['wifi_scans_per_month']
         }
     }
 
