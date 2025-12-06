@@ -3,8 +3,8 @@ Contact form routes
 """
 from flask import Blueprint, request, jsonify
 from flask_login import current_user
-from backend.services.telegram_notifier import TelegramNotifier
-from backend.utils.logger import setup_logger
+from services.telegram_notifier import TelegramNotifier
+from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
