@@ -222,7 +222,7 @@
                         </div>
                         
                         <!-- Kontaktformular -->
-                        <div class="modal fade" id="contactModal" tabindex="-1">
+                        <div class="modal fade" id="scanContactModal" tabindex="-1">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -230,7 +230,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form id="contactForm">
+                                        <form id="scanContactForm">
                                             <div class="mb-3">
                                                 <label class="form-label">Name *</label>
                                                 <input type="text" class="form-control" name="name" required>
@@ -308,7 +308,7 @@ function showContactForm() {
         websiteInput.value = currentScanUrl;
     }
     // Modal anzeigen
-    const modalElement = document.getElementById('contactModal');
+    const modalElement = document.getElementById('scanContactModal');
     if (modalElement) {
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
@@ -329,7 +329,7 @@ async function submitContactForm() {
         SecurityCheck.showNotification('Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.', 'success');
         
         // Modal schließen
-        const modalElement = document.getElementById('contactModal');
+        const modalElement = document.getElementById('scanContactModal');
         if (modalElement) {
             const modal = bootstrap.Modal.getInstance(modalElement);
             if (modal) {
