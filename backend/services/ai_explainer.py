@@ -119,12 +119,13 @@ Problemdetails:
         
         # Если нет в базе - используем AI или простое объяснение
         if not self.api_key:
+            solution_text = 'Wir empfehlen, einen Sicherheitsspezialisten zu konsultieren.' if language == 'de' else 'Рекомендуется обратиться к специалисту по безопасности.'
             return {
                 'type': vuln_type,
                 'name': vuln_type.replace('_', ' ').title(),
                 'severity': severity,
-                'explanation': self._simple_explanation(vuln_type, severity),
-                'solution': 'Рекомендуется обратиться к специалисту по безопасности.',
+                'explanation': self._simple_explanation(vuln_type, severity, language),
+                'solution': solution_text,
                 'video': None
             }
         
@@ -161,21 +162,23 @@ Verwende einfache Wörter, vermeide technischen Jargon."""
             else:
                 explanation_text = self._call_anthropic(prompt)
             
+            solution_text = 'Siehe Erklärung oben' if language == 'de' else 'См. объяснение выше'
             return {
                 'type': vuln_type,
                 'name': vuln_type.replace('_', ' ').title(),
                 'severity': severity,
                 'explanation': explanation_text,
-                'solution': 'См. объяснение выше',
+                'solution': solution_text,
                 'video': None
             }
         except Exception:
+            solution_text = 'Wir empfehlen, einen Sicherheitsspezialisten zu konsultieren.' if language == 'de' else 'Рекомендуется обратиться к специалисту.'
             return {
                 'type': vuln_type,
                 'name': vuln_type.replace('_', ' ').title(),
                 'severity': severity,
-                'explanation': self._simple_explanation(vuln_type, severity),
-                'solution': 'Рекомендуется обратиться к специалисту.',
+                'explanation': self._simple_explanation(vuln_type, severity, language),
+                'solution': solution_text,
                 'video': None
             }
     
