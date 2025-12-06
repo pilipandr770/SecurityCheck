@@ -379,6 +379,7 @@ class WiFiScanner:
                     except FileNotFoundError:
                         logger.warning("Ни 'ip', ни 'arp' команды недоступны - WiFi сканирование невозможно на этом сервере")
                         return []
+                        return []
             
             return list(set(active_ips))  # Убираем дубликаты
         except Exception as e:
