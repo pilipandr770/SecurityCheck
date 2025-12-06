@@ -94,7 +94,7 @@ Problemdetails:
             }
         
         except Exception as e:
-            return self._generate_simple_summary(results, domain)
+            return self._generate_simple_summary(results, domain, language)
     
     def explain_vulnerability(self, vuln_type: str, details: str, severity: str, language: str = 'ru', verified: bool = False) -> Dict:
         """
@@ -482,35 +482,58 @@ Schreibe eine kurze Zusammenfassung (3-4 Sätze) auf Deutsch über die Zuverläs
         
         return response.content[0].text
     
-    def _generate_simple_summary(self, results: List[Dict], domain: str) -> Dict:
+    def _generate_simple_summary(self, results: List[Dict], domain: str, language: str = 'de') -> Dict:
         """Простое резюме без AI"""
         critical = sum(1 for r in results if r.get('severity') == 'critical')
         high = sum(1 for r in results if r.get('severity') == 'high')
         medium = sum(1 for r in results if r.get('severity') == 'medium')
         
-        if critical > 0:
-            summary = f'Обнаружены серьёзные проблемы безопасности на сайте {domain}. Требуется немедленное вмешательство!'
-        elif high > 0:
-            summary = f'На сайте {domain} найдены важные проблемы безопасности, которые нужно исправить.'
-        elif medium > 0:
-            summary = f'Сайт {domain} имеет несколько проблем безопасности средней важности.'
+        if language == 'de':
+            if critical > 0:
+                summary = f'Schwerwiegende Sicherheitsprobleme auf der Website {domain} gefunden. Sofortiges Handeln erforderlich!'
+            elif high > 0:
+                summary = f'Auf der Website {domain} wurden wichtige Sicherheitsprobleme gefunden, die behoben werden müssen.'
+            elif medium > 0:
+                summary = f'Die Website {domain} hat mehrere Sicherheitsprobleme mittlerer Wichtigkeit.'
+            else:
+                summary = f'Die Website {domain} hat grundlegenden Schutz, aber es gibt Verbesserungsmöglichkeiten.'
+            
+            recommendations = 'Wir empfehlen, einen Sicherheitsspezialisten zu konsultieren, um die gefundenen Probleme zu beheben.'
         else:
-            summary = f'Сайт {domain} имеет базовую защиту, но есть возможности для улучшения.'
-        
-        recommendations = 'Рекомендуем обратиться к специалисту по безопасности для устранения найденных проблем.'
+            if critical > 0:
+                summary = f'Обнаружены серьёзные проблемы безопасности на сайте {domain}. Требуется немедленное вмешательство!'
+            elif high > 0:
+                summary = f'На сайте {domain} найдены важные проблемы безопасности, которые нужно исправить.'
+            elif medium > 0:
+                summary = f'Сайт {domain} имеет несколько проблем безопасности средней важности.'
+            else:
+                summary = f'Сайт {domain} имеет базовую защиту, но есть возможности для улучшения.'
+            
+            recommendations = 'Рекомендуем обратиться к специалисту по безопасности для устранения найденных проблем.'
         
         return {'summary': summary, 'recommendations': recommendations}
     
-    def _simple_explanation(self, vuln_type: str, severity: str) -> str:
+    def _simple_explanation(self, vuln_type: str, severity: str, language: str = 'de') -> str:
         """Простое объяснение без AI"""
-        explanations = {
-            'ssl': 'Проблемы с SSL сертификатом могут позволить злоумышленникам перехватывать данные пользователей.',
-            'headers': 'Отсутствующие заголовки безопасности делают сайт уязвимым для различных атак.',
-            'forms': 'Небезопасные формы загрузки файлов могут позволить загрузку вредоносного ПО на сервер.',
-            'cookies': 'Небезопасные cookies могут быть украдены злоумышленниками.'
-        }
+        if language == 'de':
+            explanations = {
+                'ssl': 'Probleme mit dem SSL-Zertifikat können es Angreifern ermöglichen, Benutzerdaten abzufangen.',
+                'headers': 'Fehlende Sicherheitsheader machen die Website anfällig für verschiedene Angriffe.',
+                'forms': 'Unsichere Datei-Upload-Formulare können das Hochladen von Malware auf den Server ermöglichen.',
+                'cookies': 'Unsichere Cookies können von Angreifern gestohlen werden.',
+                'html': 'Sicherheitsproblem gefunden, das behoben werden muss.'
+            }
+        else:
+            explanations = {
+                'ssl': 'Проблемы с SSL сертификатом могут позволить злоумышленникам перехватывать данные пользователей.',
+                'headers': 'Отсутствующие заголовки безопасности делают сайт уязвимым для различных атак.',
+                'forms': 'Небезопасные формы загрузки файлов могут позволить загрузку вредоносного ПО на сервер.',
+                'cookies': 'Небезопасные cookies могут быть украдены злоумышленниками.',
+                'html': 'Обнаружена проблема безопасности, которую нужно исправить.'
+            }
         
-        return explanations.get(vuln_type, 'Обнаружена проблема безопасности, которую нужно исправить.')
+        default_msg = 'Sicherheitsproblem gefunden, das behoben werden muss.' if language == 'de' else 'Обнаружена проблема безопасности, которую нужно исправить.'
+        return explanations.get(vuln_type, default_msg)
     
     def explain_wifi_scan(self, scan_results: Dict) -> Dict:
         """
