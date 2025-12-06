@@ -212,54 +212,12 @@
                                     <h4 class="mb-1">Preis ab €2.500</h4>
                                     <small>Abhängig von der Projektkomplexe ität</small>
                                 </div>
-                                <button class="btn btn-light btn-lg me-2" onclick="showContactForm()">
+                                <a href="{{ url_for('main.contact') }}" class="btn btn-light btn-lg me-2">
                                     <i class="fas fa-envelope"></i> Beratung erhalten
-                                </button>
+                                </a>
                                 <a href="{{ url_for('main.portfolio') }}" class="btn btn-outline-light btn-lg">
                                     <i class="fas fa-eye"></i> Unsere Projekte
                                 </a>
-                            </div>
-                        </div>
-                        
-                        <!-- Kontaktformular -->
-                        <div class="modal fade" id="scanContactModal" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Beratungsanfrage</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form id="scanContactForm">
-                                            <div class="mb-3">
-                                                <label class="form-label">Name *</label>
-                                                <input type="text" class="form-control" name="name" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">E-Mail *</label>
-                                                <input type="email" class="form-control" name="email" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Telefon</label>
-                                                <input type="tel" class="form-control" name="phone">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">URL Ihrer Website</label>
-                                                <input type="url" class="form-control" name="website" id="contactWebsite">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Kommentar</label>
-                                                <textarea class="form-control" name="message" rows="3"></textarea>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                                        <button type="button" class="btn btn-primary" onclick="submitContactForm()">
-                                            <i class="fas fa-paper-plane"></i> Senden
-                                        </button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         
@@ -300,47 +258,6 @@
 console.log('Web scan page loaded');
 
 let currentScanUrl = '';
-
-function showContactForm() {
-    // URL automatisch ausfüllen
-    const websiteInput = document.getElementById('contactWebsite');
-    if (websiteInput && currentScanUrl) {
-        websiteInput.value = currentScanUrl;
-    }
-    // Modal anzeigen
-    const modalElement = document.getElementById('scanContactModal');
-    if (modalElement) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-    }
-}
-
-async function submitContactForm() {
-    const form = document.getElementById('scanContactForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-    
-    const formData = new FormData(form);
-    
-    try {
-        // Hier erfolgt der API-Aufruf zum Senden der Anfrage
-        SecurityCheck.showNotification('Vielen Dank! Wir werden uns in Kürze bei Ihnen melden.', 'success');
-        
-        // Modal schließen
-        const modalElement = document.getElementById('scanContactModal');
-        if (modalElement) {
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
-            }
-        }
-        form.reset();
-    } catch (error) {
-        SecurityCheck.showNotification('Fehler beim Senden. Bitte versuchen Sie es später.', 'danger');
-    }
-}
 
 document.getElementById('scanForm').addEventListener('submit', async (e) => {
     e.preventDefault();

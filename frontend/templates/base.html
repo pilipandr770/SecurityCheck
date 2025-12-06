@@ -55,6 +55,11 @@
                                 <i class="fas fa-wifi"></i> WiFi-Scanner
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.contact') }}">
+                                <i class="fas fa-envelope"></i> Kontakt
+                            </a>
+                        </li>
                     </ul>
                     
                     <ul class="navbar-nav">
@@ -91,7 +96,13 @@
                 {% else %}
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.portfolio') }}">Portfolio</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('dashboard.pricing_page') }}">Tarife</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.contact') }}">Kontakt</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.login') }}">Anmelden</a>

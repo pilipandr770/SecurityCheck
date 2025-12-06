@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Kontakt - SecurityCheck{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-envelope text-primary"></i> Kontaktieren Sie uns
+                </h1>
+                <p class="lead text-muted">
+                    Haben Sie Fragen zur Sicherheit Ihrer Website? Unser Team steht Ihnen gerne zur Verfügung.
+                </p>
+            </div>
+
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <form id="contactForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-user text-primary"></i> Name *
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope text-primary"></i> E-Mail *
+                                </label>
+                                <input type="email" class="form-control form-control-lg" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="phone" class="form-label">
+                                    <i class="fas fa-phone text-primary"></i> Telefon
+                                </label>
+                                <input type="tel" class="form-control form-control-lg" id="phone" name="phone">
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="project_type" class="form-label">
+                                    <i class="fas fa-briefcase text-primary"></i> Projekttyp
+                                </label>
+                                <select class="form-select form-select-lg" id="project_type" name="project_type">
+                                    <option value="security_audit">Sicherheitsaudit</option>
+                                    <option value="penetration_test">Penetrationstest</option>
+                                    <option value="web_development">Webentwicklung</option>
+                                    <option value="consultation">Beratung</option>
+                                    <option value="other">Sonstiges</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="website" class="form-label">
+                                <i class="fas fa-globe text-primary"></i> Website
+                            </label>
+                            <input type="url" class="form-control form-control-lg" id="website" name="website" placeholder="https://ihre-website.de">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="form-label">
+                                <i class="fas fa-comment text-primary"></i> Nachricht *
+                            </label>
+                            <textarea class="form-control form-control-lg" id="message" name="message" rows="6" required placeholder="Beschreiben Sie Ihr Anliegen..."></textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> 
+                            Alle Felder mit * sind Pflichtfelder. Wir melden uns innerhalb von 24 Stunden bei Ihnen.
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Nachricht senden
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Zusätzliche Kontaktinformationen -->
+            <div class="row mt-5">
+                <div class="col-md-4 text-center mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+                        <h5>Antwortzeit</h5>
+                        <p class="text-muted">Innerhalb von 24 Stunden</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                        <h5>Vertraulichkeit</h5>
+                        <p class="text-muted">Ihre Daten sind sicher</p>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center mb-4">
+                    <div class="p-4">
+                        <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                        <h5>Experten-Team</h5>
+                        <p class="text-muted">Professionelle Beratung</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!this.checkValidity()) {
+        this.reportValidity();
+        return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Wird gesendet...';
+    
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        project_type: document.getElementById('project_type').value,
+        website: document.getElementById('website').value,
+        message: document.getElementById('message').value
+    };
+    
+    try {
+        const response = await fetch('/api/contact/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Erfolg
+            this.reset();
+            showAlert('Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet. Wir melden uns in Kürze bei Ihnen.', 'success');
+        } else {
+            showAlert(data.message || 'Es gab einen Fehler beim Senden Ihrer Nachricht.', 'danger');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showAlert('Es gab einen Fehler beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.', 'danger');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+});
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.getElementById('contactForm').insertAdjacentElement('beforebegin', alertDiv);
+    
+    // Auto-dismiss nach 5 Sekunden
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

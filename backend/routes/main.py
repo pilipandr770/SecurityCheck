@@ -21,3 +21,8 @@ def agb():
 def portfolio():
     """Портфолио защищенных проектов"""
     return render_template('portfolio.html')
+
+@main_bp.route('/contact')
+def contact():
+    """Контактная страница"""
+    return render_template('contact.html')

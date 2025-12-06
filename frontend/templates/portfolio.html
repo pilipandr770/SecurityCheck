@@ -194,9 +194,9 @@
                         </div>
                     </div>
 
-                    <button class="btn btn-primary btn-lg me-2" data-bs-toggle="modal" data-bs-target="#contactModal">
-                        <i class="fas fa-paper-plane"></i> Beratung erhalten
-                    </button>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-primary btn-lg me-2">
+                        <i class="fas fa-envelope"></i> Beratung erhalten
+                    </a>
                     <a href="{{ url_for('dashboard.pricing_page') }}" class="btn btn-outline-primary btn-lg">
                         <i class="fas fa-star"></i> Tarife ansehen
                     </a>
@@ -269,99 +269,4 @@
         </div>
     </div>
 </div>
-
-<!-- Contact Modal -->
-<div class="modal fade" id="contactModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">📞 Beratung erhalten</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="portfolioContactForm">
-                    <div class="mb-3">
-                        <label class="form-label">Ihr Name</label>
-                        <input type="text" class="form-control" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">E-Mail</label>
-                        <input type="email" class="form-control" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Telefon</label>
-                        <input type="tel" class="form-control" name="phone" placeholder="+49...">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Projekttyp</label>
-                        <select class="form-select" name="project_type" required>
-                            <option value="">Bitte wählen...</option>
-                            <option value="website">Unternehmenswebsite</option>
-                            <option value="ecommerce">Online-Shop</option>
-                            <option value="webapp">Webanwendung</option>
-                            <option value="audit">Sicherheitsaudit</option>
-                            <option value="other">Sonstiges</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nachricht</label>
-                        <textarea class="form-control" name="message" rows="4" 
-                                  placeholder="Erzählen Sie uns von Ihrem Projekt..."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" onclick="submitPortfolioContact()">
-                    <i class="fas fa-paper-plane"></i> Senden
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-async function submitPortfolioContact() {
-    const form = document.getElementById('portfolioContactForm');
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-    
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData);
-    
-    try {
-        const response = await fetch('/api/contact/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            SecurityCheck.showNotification(result.message, 'success');
-            
-            const modalElement = document.getElementById('contactModal');
-            if (modalElement) {
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                if (modal) {
-                    modal.hide();
-                }
-            }
-            form.reset();
-        } else {
-            SecurityCheck.showNotification(result.message, 'danger');
-        }
-    } catch (error) {
-        console.error('Contact form error:', error);
-        SecurityCheck.showNotification('Sendefehler. Versuchen Sie es später erneut oder schreiben Sie an andrii.it.info@gmail.com', 'danger');
-    }
-}
-</script>
 {% endblock %}
