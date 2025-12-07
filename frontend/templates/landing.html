@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+
+{% block title %}SecurityCheck - Kostenlose Website-Sicherheitsprüfung{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; margin-top: -2rem;">
+    <div class="container py-5">
+        <h1 class="display-3 fw-bold mb-4">
+            <i class="fas fa-shield-alt"></i> Schützen Sie Ihre Website
+        </h1>
+        <p class="lead mb-4" style="font-size: 1.5rem;">
+            Prüfen Sie Ihre Website oder Online-Shop auf Sicherheitslücken - <strong>KOSTENLOS</strong>
+        </p>
+        <p class="mb-5" style="font-size: 1.2rem;">
+            Finden Sie Schwachstellen, bevor Hacker sie ausnutzen!
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5 py-3" style="font-size: 1.2rem;">
+                <i class="fas fa-rocket"></i> Jetzt kostenlos registrieren
+            </a>
+            <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3" style="font-size: 1.2rem;">
+                <i class="fas fa-info-circle"></i> Mehr erfahren
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="mb-5">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="fas fa-star text-warning"></i> Was Sie mit SecurityCheck prüfen können
+        </h2>
+        
+        <div class="row g-4">
+            <!-- Feature 1: Eigene Website -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0" style="border-left: 5px solid #667eea !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-laptop-code fa-4x text-primary"></i>
+                        </div>
+                        <h3 class="card-title">Ihre Website prüfen</h3>
+                        <p class="card-text">
+                            Scannen Sie Ihre eigene Website oder Online-Shop auf Sicherheitslücken, 
+                            XSS-Anfälligkeiten, SQL-Injection und andere Bedrohungen.
+                        </p>
+                        <ul class="list-unstyled text-start mt-3">
+                            <li><i class="fas fa-check text-success"></i> SSL/TLS Zertifikate</li>
+                            <li><i class="fas fa-check text-success"></i> SQL-Injection Tests</li>
+                            <li><i class="fas fa-check text-success"></i> XSS-Schwachstellen</li>
+                            <li><i class="fas fa-check text-success"></i> Security Headers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2: Andere Websites -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0" style="border-left: 5px solid #764ba2 !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-globe fa-4x" style="color: #764ba2;"></i>
+                        </div>
+                        <h3 class="card-title">Andere Websites testen</h3>
+                        <p class="card-text">
+                            Prüfen Sie die Sicherheit von Partner-Websites, Konkurrenz-Analyse 
+                            oder überprüfen Sie Websites vor einer Zusammenarbeit.
+                        </p>
+                        <ul class="list-unstyled text-start mt-3">
+                            <li><i class="fas fa-check text-success"></i> Link-Sicherheit</li>
+                            <li><i class="fas fa-check text-success"></i> Domain-Analyse</li>
+                            <li><i class="fas fa-check text-success"></i> Phishing-Erkennung</li>
+                            <li><i class="fas fa-check text-success"></i> Malware-Scan</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3: Unsere Projekte -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0" style="border-left: 5px solid #f093fb !important;">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="fas fa-trophy fa-4x text-warning"></i>
+                        </div>
+                        <h3 class="card-title">Unsere gesicherten Projekte</h3>
+                        <p class="card-text">
+                            Sehen Sie sich unsere Portfolio an - Websites, die wir erfolgreich 
+                            gegen Cyberangriffe geschützt haben.
+                        </p>
+                        <ul class="list-unstyled text-start mt-3">
+                            <li><i class="fas fa-check text-success"></i> 100% Sicherheitsbewertung</li>
+                            <li><i class="fas fa-check text-success"></i> Echte Projekte</li>
+                            <li><i class="fas fa-check text-success"></i> Professionelle Absicherung</li>
+                            <li><i class="fas fa-check text-success"></i> Langfristiger Schutz</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 mb-5" style="background: #f8f9fa; border-radius: 15px;">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="fas fa-cogs"></i> So funktioniert es
+        </h2>
+        
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        1
+                    </div>
+                </div>
+                <h4>Registrieren</h4>
+                <p>Kostenlose Anmeldung in weniger als 1 Minute</p>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        2
+                    </div>
+                </div>
+                <h4>URL eingeben</h4>
+                <p>Geben Sie die Website-Adresse ein, die Sie prüfen möchten</p>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        3
+                    </div>
+                </div>
+                <h4>Scan starten</h4>
+                <p>Unser System analysiert die Website automatisch</p>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <div class="rounded-circle bg-success text-white d-inline-flex justify-content-center align-items-center" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <h4>Ergebnisse erhalten</h4>
+                <p>Detaillierter Bericht mit Empfehlungen</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="mb-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="p-4">
+                    <h2 class="display-4 text-primary fw-bold">
+                        <i class="fas fa-bolt"></i> 5 Min
+                    </h2>
+                    <p class="lead">Durchschnittliche Scan-Zeit</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4">
+                    <h2 class="display-4 text-success fw-bold">
+                        <i class="fas fa-shield-alt"></i> 100%
+                    </h2>
+                    <p class="lead">Kostenlose Basis-Prüfung</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4">
+                    <h2 class="display-4 text-warning fw-bold">
+                        <i class="fas fa-search"></i> 20+
+                    </h2>
+                    <p class="lead">Verschiedene Sicherheitstests</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4">
+                    <h2 class="display-4 text-danger fw-bold">
+                        <i class="fas fa-bug"></i> 0
+                    </h2>
+                    <p class="lead">Kosten für erste Prüfung</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Security Threats -->
+<section class="mb-5 py-5" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 15px;">
+    <div class="container">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-exclamation-triangle"></i> Häufigste Bedrohungen
+        </h2>
+        <p class="text-center lead mb-5">
+            Diese Schwachstellen finden wir regelmäßig auf Websites
+        </p>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card bg-transparent border-light text-white h-100">
+                    <div class="card-body">
+                        <h4><i class="fas fa-database"></i> SQL-Injection</h4>
+                        <p>Angreifer können auf Ihre Datenbank zugreifen und sensible Daten stehlen</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-transparent border-light text-white h-100">
+                    <div class="card-body">
+                        <h4><i class="fas fa-code"></i> Cross-Site Scripting</h4>
+                        <p>Schadcode wird in Ihre Website eingefügt und schadet Ihren Besuchern</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-transparent border-light text-white h-100">
+                    <div class="card-body">
+                        <h4><i class="fas fa-unlock"></i> Schwache Verschlüsselung</h4>
+                        <p>Fehlende oder veraltete SSL-Zertifikate gefährden Nutzerdaten</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Portfolio Preview -->
+<section class="mb-5">
+    <div class="container">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-briefcase"></i> Unsere gesicherten Projekte
+        </h2>
+        <p class="text-center lead mb-5">
+            Sehen Sie sich Beispiele von Websites an, die wir erfolgreich geschützt haben
+        </p>
+        
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">Andrii-IT</h4>
+                            <span class="badge bg-success" style="font-size: 1rem;">100/100</span>
+                        </div>
+                        <p class="text-muted">IT-Dienstleistungen & Beratung</p>
+                        <div class="mb-3">
+                            <span class="badge bg-secondary me-1">React</span>
+                            <span class="badge bg-secondary me-1">Flask</span>
+                            <span class="badge bg-secondary">PostgreSQL</span>
+                        </div>
+                        <a href="https://www.andrii-it.de/" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-external-link-alt"></i> Website ansehen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">VAT-Verifizierung</h4>
+                            <span class="badge bg-success" style="font-size: 1rem;">98/100</span>
+                        </div>
+                        <p class="text-muted">USt-ID Validierung</p>
+                        <div class="mb-3">
+                            <span class="badge bg-secondary me-1">Flask</span>
+                            <span class="badge bg-secondary me-1">PostgreSQL</span>
+                            <span class="badge bg-secondary">API</span>
+                        </div>
+                        <a href="https://vat-verifizierung.de/" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-external-link-alt"></i> Website ansehen
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 shadow">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0">SmartShop</h4>
+                            <span class="badge bg-success" style="font-size: 1rem;">96/100</span>
+                        </div>
+                        <p class="text-muted">E-Commerce Plattform</p>
+                        <div class="mb-3">
+                            <span class="badge bg-secondary me-1">React</span>
+                            <span class="badge bg-secondary me-1">Node.js</span>
+                            <span class="badge bg-secondary">MongoDB</span>
+                        </div>
+                        <a href="https://smartshop-ak3q.onrender.com/" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-external-link-alt"></i> Website ansehen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="{{ url_for('main.portfolio') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-folder-open"></i> Vollständiges Portfolio ansehen
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 mb-5 text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px;">
+    <div class="container">
+        <h2 class="display-4 fw-bold mb-4">
+            Bereit, Ihre Website zu schützen?
+        </h2>
+        <p class="lead mb-4" style="font-size: 1.3rem;">
+            Registrieren Sie sich jetzt kostenlos und führen Sie Ihren ersten Sicherheitsscan durch
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-5 py-3" style="font-size: 1.2rem;">
+                <i class="fas fa-user-plus"></i> Kostenlos registrieren
+            </a>
+            <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light btn-lg px-5 py-3" style="font-size: 1.2rem;">
+                <i class="fas fa-envelope"></i> Kontakt aufnehmen
+            </a>
+        </div>
+        <p class="mt-4 mb-0" style="font-size: 1.1rem;">
+            <i class="fas fa-check-circle"></i> Keine Kreditkarte erforderlich
+            &nbsp;•&nbsp;
+            <i class="fas fa-check-circle"></i> Sofortiger Zugang
+            &nbsp;•&nbsp;
+            <i class="fas fa-check-circle"></i> Jederzeit kündbar
+        </p>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section class="mb-5">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <i class="fas fa-star"></i> Warum SecurityCheck?
+        </h2>
+        
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle fa-3x text-success"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4>Einfach zu bedienen</h4>
+                        <p>Keine technischen Kenntnisse erforderlich. Geben Sie einfach die URL ein und starten Sie den Scan.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-tachometer-alt fa-3x text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4>Schnelle Ergebnisse</h4>
+                        <p>Erhalten Sie detaillierte Berichte in wenigen Minuten, nicht in Stunden oder Tagen.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4>Umfassende Prüfung</h4>
+                        <p>Über 20 verschiedene Sicherheitstests für maximalen Schutz Ihrer Website.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-headset fa-3x text-info"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h4>Experten-Support</h4>
+                        <p>Unser Team hilft Ihnen bei Fragen und unterstützt Sie bei der Absicherung.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
